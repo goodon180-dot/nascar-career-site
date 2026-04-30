@@ -45,11 +45,11 @@
       padding: 10px;
       text-align: center;
       border-bottom: 1px solid #2a2a35;
-      cursor: pointer;
     }
 
     th {
       background: #1f1f2a;
+      cursor: pointer;
     }
 
     tr:hover {
@@ -64,10 +64,6 @@
     .cutline {
       border-top: 3px solid #ffcc00;
     }
-
-    .rookie {
-      color: #00d4ff;
-    }
   </style>
 </head>
 
@@ -77,7 +73,7 @@
 
 <!-- CONTROLS -->
 <div class="controls">
-  <input type="text" id="search" placeholder="Search driver..." onkeyup="render()">
+  <input id="search" placeholder="Search driver..." onkeyup="render()">
 
   <select id="filterWins" onchange="render()">
     <option value="all">All Drivers</option>
@@ -85,17 +81,17 @@
   </select>
 
   <select id="filterPlayoff" onchange="render()">
-    <option value="all">Playoff Status</option>
-    <option value="lock">Playoff Drivers (Top 16)</option>
+    <option value="all">All</option>
+    <option value="lock">Playoff Top 16</option>
   </select>
 </div>
 
 <table>
   <thead>
     <tr>
-      <th onclick="sortTable(0)">Driver</th>
-      <th onclick="sortTable(1)">Starts</th>
-      <th onclick="sortTable(2)">Points</th>
+      <th>Driver</th>
+      <th>Starts</th>
+      <th>Points</th>
       <th>+/-</th>
       <th>Wins</th>
       <th>Top 5</th>
@@ -132,50 +128,42 @@ let data = [
   ["J. Berry",14,284,"-10","",2,6,2,27,"",""],
   ["C. Elliott",14,284,"-10","","",3,1,47,"",""],
   ["C. Buescher",14,272,"-22","",1,3,2,30,"",""],
-["E. Jones",14,270,"-24",1,2,3,"",29,6,1],
-["C. Briscoe",14,262,"-32","",2,3,"",6,"",""],
-["N. Gragson",14,255,"-39","",1,2,"",53,"",""],
-["T. Goodon",14,249,"-45","","",3,2,7,1,1],
-["D. Suarez",14,244,"-50","","",4,"",26,1,1],
-["T. Dillon",14,243,"-51","","",2,"",16,"",""],
-["R. Stenhouse Jr.",14,228,"-66","","",1,1,33,"",""],
-["Z. Smithᴿ",14,227,"-67","","",3,"",36,"",""],
-["R. Preece",14,220,"-74","","",2,1,"","",""],
-["C. LaJoie",14,215,"-79","",1,1,"",48,"",""],
-["A. Almirola",14,207,"-87","",1,1,"",31,"",""],
-["T. Gilliland",14,191,"-103","",2,2,1,10,"",""],
-["A. Allmendinger",14,184,"-110","","",1,1,9,"",""],
-["M. McDowell",14,175,"-119","",1,2,1,49,2,2],
-["B. McLeod",14,175,"-119","","",1,1,21,1,1],
-["J. Johnson",5,138,"-","",3,3,"",15,"",""],
-["C. Hocevar",5,119,"-","",1,1,"",48,1,1],
-["SV. Gisbergen",3,80,"-","",1,1,"","",""],
-["JH. Nemcheck",2,76,"-","",1,1,"",5,"",""],
-["R. Newman",5,72,"-","","",1,"",4,"",""],
-["P. O'Ward",2,70,"-",1,1,1,"",11,6,1],
-["D. Hemric",2,53,"-","","","","","",""],
-["C. Smith",3,52,"-","",1,"","","",""],
-["S. Creed",2,43,"-","",1,"","","",""],
-["Ku. Busch",2,41,"-","",1,1,"","",""],
-["J. Love",1,31,"-","",1,"","","",""],
-["J. Yeley",3,31,"-","","","","","",""],
-["A. Hill",3,31,"-","","","","","",""],
-["C. Heim",1,18,"-","","","","","",""],
-["J. Allgaier",1,11,"-","",1,"","","",""],
-["S. Mayer",2,11,"-","","","","","",""],
-["H. Burton",1,3,"-","","","","","",""]
+  ["E. Jones",14,270,"-24",1,2,3,"",29,6,1],
+  ["C. Briscoe",14,262,"-32","",2,3,"",6,"",""],
+  ["N. Gragson",14,255,"-39","",1,2,"",53,"",""],
+  ["T. Goodon",14,249,"-45","","",3,2,7,1,1],
+  ["D. Suarez",14,244,"-50","","",4,"",26,1,1],
+  ["T. Dillon",14,243,"-51","","",2,"",16,"",""],
+  ["R. Stenhouse Jr.",14,228,"-66","","",1,1,33,"",""],
+  ["Z. Smithᴿ",14,227,"-67","","",3,"",36,"",""],
+  ["R. Preece",14,220,"-74","","",2,1,"","",""],
+  ["C. LaJoie",14,215,"-79","",1,1,"",48,"",""],
+  ["A. Almirola",14,207,"-87","",1,1,"",31,"",""],
+  ["T. Gilliland",14,191,"-103","",2,2,1,10,"",""],
+  ["A. Allmendinger",14,184,"-110","","",1,1,9,"",""],
+  ["M. McDowell",14,175,"-119","",1,2,1,49,2,2],
+  ["B. McLeod",14,175,"-119","","",1,1,21,1,1],
+  ["J. Johnson",5,138,"-","",3,3,"",15,"",""],
+  ["C. Hocevar",5,119,"-","",1,1,"",48,1,1],
+  ["SV. Gisbergen",3,80,"-","",1,1,"","",""],
+  ["JH. Nemcheck",2,76,"-","",1,1,"",5,"",""],
+  ["R. Newman",5,72,"-","","",1,"",4,"",""],
+  ["P. O'Ward",2,70,"-",1,1,1,"",11,6,1],
+  ["D. Hemric",2,53,"-","","","","","",""],
+  ["C. Smith",3,52,"-","",1,"","","",""],
+  ["S. Creed",2,43,"-","",1,"","","",""],
+  ["Ku. Busch",2,41,"-","",1,1,"","",""],
+  ["J. Love",1,31,"-","",1,"","","",""],
+  ["J. Yeley",3,31,"-","","","","","",""],
+  ["A. Hill",3,31,"-","","","","","",""],
+  ["C. Heim",1,18,"-","","","","","",""],
+  ["J. Allgaier",1,11,"-","",1,"","","",""],
+  ["S. Mayer",2,11,"-","","","","","",""],
+  ["H. Burton",1,3,"-","","","","","",""]
 ];
 
-// sort by points on load
+// sort by points automatically
 data.sort((a,b) => b[2] - a[2]);
-
-let sortDir = true;
-
-function sortTable(col) {
-  data.sort((a,b) => sortDir ? (b[col] - a[col]) : (a[col] - b[col]));
-  sortDir = !sortDir;
-  render();
-}
 
 function render() {
   let body = document.getElementById("body");
@@ -187,21 +175,21 @@ function render() {
 
   let filtered = data.filter(d => {
     let nameMatch = d[0].toLowerCase().includes(search);
-
-    let winsMatch = true;
-    if (winFilter === "wins") winsMatch = d[4] > 0;
-
-    let playoffMatch = true;
-    if (playoffFilter === "lock") playoffMatch = data.indexOf(d) < 16;
-
-    return nameMatch && winsMatch && playoffMatch;
+    let winsMatch = winFilter === "wins" ? d[4] > 0 : true;
+    return nameMatch && winsMatch;
   });
 
+  filtered.sort((a,b) => b[2] - a[2]);
+
   filtered.forEach((d, i) => {
+
+    if (playoffFilter === "lock" && i >= 16) return;
+
     let tr = document.createElement("tr");
 
-    // 🟡 playoff cut line (16th place)
-    if (i === 15) tr.classList.add("cutline");
+    if (i === 15) {
+      tr.style.borderTop = "3px solid #ffcc00";
+    }
 
     tr.innerHTML = `
       <td>${d[0]}</td>
