@@ -1,25 +1,185 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>iRacing Cup Series</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Dashboard</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0b0b0f;
+      color: white;
+    }
+
+    nav {
+      background: #d40000;
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      padding: 15px;
+      font-weight: bold;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+    }
+
+    nav a:hover {
+      color: #ffcc00;
+    }
+
+    header {
+      text-align: center;
+      padding: 20px;
+      font-size: 26px;
+      font-weight: bold;
+      letter-spacing: 2px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+      padding: 20px;
+    }
+
+    .card {
+      background: #15151c;
+      padding: 20px;
+      border-radius: 10px;
+    }
+
+    .card h3 {
+      color: #ffcc00;
+      margin-bottom: 15px;
+    }
+
+    .list div {
+      padding: 6px 0;
+      border-bottom: 1px solid #2a2a35;
+    }
+
+    .list div:last-child {
+      border-bottom: none;
+    }
+
+    a.driver {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    a.driver:hover {
+      color: #ffcc00;
+    }
+
+    .cutline-divider {
+      border-top: 3px solid #ffcc00;
+      margin: 10px 0;
+    }
+
+  </style>
 </head>
+
 <body>
 
-<header>
-  <h1>iRacing NASCAR Cup Series</h1>
-  <nav>
-    <a href="standings.html">Standings</a>
-    <a href="drivers.html">Drivers</a>
-    <a href="results.html">Results</a>
-    <a href="stats.html">All-Time Stats</a>
-  </nav>
-</header>
+<nav>
+  <a href="dashboard.html">Dashboard</a>
+  <a href="standings.html">Standings</a>
+  <a href="drivers.html">Drivers</a>
+</nav>
 
-<section class="hero">
-  <h2>Welcome to the Series Hub</h2>
-  <p>Latest results, standings, and historical stats.</p>
-</section>
+<header>DASHBOARD</header>
+
+<div class="grid">
+
+  <!-- TOP 10 -->
+  <div class="card">
+    <h3>📊 Top 10</h3>
+    <div id="top10" class="list"></div>
+  </div>
+
+  <!-- CUTLINE -->
+  <div class="card">
+    <h3>🟡 Playoff Cutline</h3>
+    <div id="cutline"></div>
+  </div>
+
+  <!-- STATS -->
+  <div class="card">
+    <h3>🔥 League Stats</h3>
+    <div id="stats"></div>
+  </div>
+
+  <!-- LAST RACE -->
+  <div class="card">
+    <h3>🏁 Last Race</h3>
+    <div class="list">
+      <div>📍 Indy Road Course</div>
+      <div>🥇 T. Reddick</div>
+      <div>🥈 M. Truex Jr.</div>
+      <div>🥉 SV. Gisbergen</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+
+// 🔥 USE YOUR FULL DATA HERE
+let data = [
+  ["K. Larson",418,0,148,3],
+  ["K. Busch",402,2,120,6],
+  ["T. Reddick",398,2,139,5],
+  ["A. Bowman",398,1,89,2],
+  ["B. Keselowski",380,1,96,6],
+  ["B. Wallace",351,0,24,2],
+  ["A. Dillon",348,0,18,0],
+  ["A. Cindric",346,0,88,3],
+  ["W. Byron",325,1,42,3],
+  ["J. Logano",324,1,112,3],
+  ["C. Bell",323,0,67,3],
+  ["T. Gibbs",315,1,75,2],
+  ["D. Hamlin",310,2,44,3],
+  ["R. Blaney",310,0,61,2],
+  ["M. Truex Jr.",299,0,49,3],
+  ["R. Chastain",294,1,62,2],
+  ["J. Haley",288,0,13,1]
+];
+
+// sort by points
+data.sort((a,b)=>b[1]-a[1]);
+
+function driverLink(name){
+  return `<a class="driver" href="drivers.html?name=${encodeURIComponent(name)}">${name}</a>`;
+}
+
+// TOP 10 with points
+document.getElementById("top10").innerHTML =
+  data.slice(0,10).map((d,i)=>
+    `<div>${i+1}. ${driverLink(d[0])} — ${d[1]} pts</div>`
+  ).join("");
+
+// CUTLINE
+document.getElementById("cutline").innerHTML = `
+  <div>16. ${driverLink(data[15][0])}</div>
+  <div class="cutline-divider"></div>
+  <div>17. ${driverLink(data[16][0])}</div>
+`;
+
+// STATS
+let mostWins = [...data].sort((a,b)=>b[2]-a[2])[0];
+let mostLaps = [...data].sort((a,b)=>b[3]-a[3])[0];
+let mostTop5 = [...data].sort((a,b)=>b[4]-a[4])[0];
+
+document.getElementById("stats").innerHTML = `
+  🏆 Most Wins: ${driverLink(mostWins[0])} (${mostWins[2]})<br><br>
+  🔥 Most Laps Led: ${driverLink(mostLaps[0])} (${mostLaps[3]})<br><br>
+  ⭐ Most Top 5s: ${driverLink(mostTop5[0])} (${mostTop5[4]})
+`;
+
+</script>
 
 </body>
 </html>
