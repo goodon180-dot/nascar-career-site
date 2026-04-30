@@ -67,25 +67,22 @@
       font-weight: bold;
     }
 
-    .cutline {
-      border-top: 3px solid #ffcc00;
+    .cutline td {
+      border-bottom: 3px solid #ffcc00;
     }
 
-    /* movement styles */
     .up {
       color: #00ff6a;
       font-weight: bold;
-      text-shadow: 0 0 8px rgba(0,255,106,0.6);
     }
 
     .down {
       color: #ff3b3b;
       font-weight: bold;
-      text-shadow: 0 0 8px rgba(255,59,59,0.6);
     }
 
     .neutral {
-      color: #aaa;
+      color: white;
     }
   </style>
 </head>
@@ -116,14 +113,14 @@
         <th onclick="sortTable(0)">Driver</th>
         <th onclick="sortTable(1)">Starts</th>
         <th onclick="sortTable(2)">Points</th>
-        <th>Move</th>
+        <th onclick="sortTable(3)">+/-</th>
         <th onclick="sortTable(4)">Wins</th>
         <th onclick="sortTable(5)">Top 5</th>
         <th onclick="sortTable(6)">Top 10</th>
         <th onclick="sortTable(7)">DNF</th>
         <th onclick="sortTable(8)">Laps Led</th>
-        <th onclick="sortTable(9)">Playoff</th>
-        <th onclick="sortTable(10)">Stage</th>
+        <th onclick="sortTable(9)">Playoff Pts</th>
+        <th onclick="sortTable(10)">Stage Wins</th>
       </tr>
     </thead>
 
@@ -134,113 +131,106 @@
 
 <script>
 
-let previousPositions = {};
-
 let data = [
-  ["K. Larson",14,418,"+130","",3,8, "",148,5,5],
+  ["K. Larson",14,418,"+130",0,3,8,0,148,5,5],
   ["K. Busch",14,402,"+114",2,6,9,1,120,11,1],
-  ["T. Reddick",14,398,"+110",2,5,7,"",139,11,1],
+  ["T. Reddick",14,398,"+110",2,5,7,0,139,11,1],
   ["A. Bowman",14,398,"+110",1,2,3,1,89,9,4],
   ["B. Keselowski",14,380,"+92",1,6,7,1,96,7,2],
-  ["B. Wallace",14,351,"+63","",2,5,"",24,"",""],
-  ["A. Dillon",14,348,"+60","","",4,"",18,1,1],
-  ["A. Cindric",14,346,"+58","",3,6,"",88,2,2],
-  ["W. Byron",14,325,"+37",1,3,3,"",42,5,""],
-  ["J. Logano",14,324,"+36",1,3,5,"",112,6,1],
-  ["C. Bell",14,323,"+35","",3,6,1,67,2,2],
-  ["T. Gibbs",14,315,"+27",1,2,4,1,75,5,""],
-  ["D. Hamlin",14,310,"+22",2,3,5,1,44,10,""],
-  ["R. Blaney",14,310,"+22","",2,3,1,61,"",""],
-  ["M. Truex Jr.",14,299,"+11","",3,4,"",49,"",""],
-  ["R. Chastain",14,294,"+6",1,2,3,"",62,5,""],
-  ["J. Haley",14,288,"-6","",1,4,"",13,1,1],
-  ["J. Berry",14,284,"-10","",2,6,2,27,"",""],
-  ["C. Elliott",14,284,"-10","","",3,1,47,"",""],
-  ["C. Buescher",14,272,"-22","",1,3,2,30,"",""],
-  ["E. Jones",14,270,"-24",1,2,3,"",29,6,1],
-  ["C. Briscoe",14,262,"-32","",2,3,"",6,"",""],
-  ["N. Gragson",14,255,"-39","",1,2,"",53,"",""],
-  ["T. Goodon",14,249,"-45","","",3,2,7,1,1],
-  ["D. Suarez",14,244,"-50","","",4,"",26,1,1],
-  ["T. Dillon",14,243,"-51","","",2,"",16,"",""],
-  ["R. Stenhouse Jr.",14,228,"-66","","",1,1,33,"",""],
-  ["Z. Smithᴿ",14,227,"-67","","",3,"",36,"",""],
-  ["R. Preece",14,220,"-74","","",2,1,"","",""],
-  ["C. LaJoie",14,215,"-79","",1,1,"",48,"",""],
-  ["A. Almirola",14,207,"-87","",1,1,"",31,"",""],
-  ["T. Gilliland",14,191,"-103","",2,2,1,10,"",""],
-  ["A. Allmendinger",14,184,"-110","","",1,1,9,"",""],
-  ["M. McDowell",14,175,"-119","",1,2,1,49,2,2],
-  ["B. McLeod",14,175,"-119","","",1,1,21,1,1]
-];
+  ["B. Wallace",14,351,"+63",0,2,5,0,24,0,0],
+  ["A. Dillon",14,348,"+60",0,0,4,0,18,1,1],
+  ["A. Cindric",14,346,"+58",0,3,6,0,88,2,2],
+  ["W. Byron",14,325,"+37",1,3,3,0,42,5,0],
+  ["J. Logano",14,324,"+36",1,3,5,0,112,6,1],
+  ["C. Bell",14,323,"+35",0,3,6,1,67,2,2],
+  ["T. Gibbs",14,315,"+27",1,2,4,1,75,5,0],
+  ["D. Hamlin",14,310,"+22",2,3,5,1,44,10,0],
+  ["R. Blaney",14,310,"+22",0,2,3,1,61,0,0],
+  ["M. Truex Jr.",14,299,"+11",0,3,4,0,49,0,0],
+  ["R. Chastain",14,294,"+6",1,2,3,0,62,5,0],
 
-// sort by points on load
-data.sort((a,b) => b[2] - a[2]);
+  ["J. Haley",14,288,"-6",0,1,4,0,13,1,1],
+  ["J. Berry",14,284,"-10",0,2,6,2,27,0,0],
+  ["C. Elliott",14,284,"-10",0,0,3,1,47,0,0],
+  ["C. Buescher",14,272,"-22",0,1,3,2,30,0,0],
+
+  ["E. Jones",14,270,"-24",1,2,3,0,29,6,1],
+  ["C. Briscoe",14,262,"-32",0,2,3,0,6,0,0],
+  ["N. Gragson",14,255,"-39",0,1,2,0,53,0,0],
+  ["T. Goodon",14,249,"-45",0,0,3,2,7,1,1],
+  ["D. Suarez",14,244,"-50",0,0,4,0,26,1,1],
+  ["T. Dillon",14,243,"-51",0,0,2,0,16,0,0],
+  ["R. Stenhouse Jr.",14,228,"-66",0,0,1,1,33,0,0],
+  ["Z. Smithᴿ",14,227,"-67",0,0,3,0,36,0,0],
+  ["R. Preece",14,220,"-74",0,0,2,1,0,0,0],
+  ["C. LaJoie",14,215,"-79",0,1,1,0,48,0,0],
+  ["A. Almirola",14,207,"-87",0,1,1,0,31,0,0],
+  ["T. Gilliland",14,191,"-103",0,2,2,1,10,0,0],
+  ["A. Allmendinger",14,184,"-110",0,0,1,1,9,0,0],
+  ["M. McDowell",14,175,"-119",0,1,2,1,49,2,2],
+  ["B. McLeod",14,175,"-119",0,0,1,1,21,1,1],
+
+  ["J. Johnson",5,138,"-",0,3,3,0,15,0,0],
+  ["C. Hocevar",5,119,"-",0,1,1,0,48,1,1],
+  ["SV. Gisbergen",3,80,"-",0,1,1,0,0,0,0],
+  ["JH. Nemcheck",2,76,"-",0,1,1,0,5,0,0],
+  ["R. Newman",5,72,"-",0,0,1,0,4,0,0],
+  ["P. O'Ward",2,70,"-",1,1,1,0,11,6,1]
+];
 
 let sortDir = true;
 
 function sortTable(col) {
-  data.sort((a,b) => sortDir ? (b[col]-a[col]) : (a[col]-b[col]));
+  data.sort((a,b)=>{
+    let x=a[col], y=b[col];
+
+    if(typeof x==="string") x = x.replace("+","").replace("-","");
+    if(typeof y==="string") y = y.replace("+","").replace("-","");
+
+    return sortDir ? (y - x || (""+y).localeCompare(""+x)) : (x - y || (""+x).localeCompare(""+y));
+  });
+
   sortDir = !sortDir;
   renderTable();
 }
 
-function renderTable() {
+function renderTable(){
 
-  let body = document.getElementById("body");
-  body.innerHTML = "";
+  let body=document.getElementById("body");
+  body.innerHTML="";
 
-  let search = document.getElementById("search").value.toLowerCase();
-  let winsFilter = document.getElementById("filterWins").value;
-  let playoffFilter = document.getElementById("filterPlayoff").value;
+  let search=document.getElementById("search").value.toLowerCase();
+  let winsFilter=document.getElementById("filterWins").value;
+  let playoffFilter=document.getElementById("filterPlayoff").value;
 
-  let sorted = [...data].sort((a,b) => b[2] - a[2]);
+  let sorted=[...data].sort((a,b)=>b[2]-a[2]);
 
-  let filtered = sorted.filter(d => {
-    let nameMatch = d[0].toLowerCase().includes(search);
-    let winsMatch = winsFilter === "wins" ? d[4] > 0 : true;
-    return nameMatch && winsMatch;
+  let filtered=sorted.filter(d=>{
+    let nameMatch=d[0].toLowerCase().includes(search);
+    let winMatch=winsFilter==="wins"?d[4]>0:true;
+    return nameMatch&&winMatch;
   });
 
-  filtered.forEach((d,i) => {
+  filtered.forEach((d,i)=>{
 
-    if (playoffFilter === "playoff" && i >= 16) return;
+    if(playoffFilter==="playoff"&&i>=16)return;
 
-    let tr = document.createElement("tr");
+    let tr=document.createElement("tr");
 
-    // 🟡 cut line
-    if (i === 16) tr.classList.add("cutline");
+    if(i===15)tr.classList.add("cutline");
 
-    let driver = d[0];
-    let oldPos = previousPositions[driver];
-    let newPos = i;
+    let move=d[3];
+    let moveClass="neutral";
 
-    let moveText = "";
-    let moveClass = "neutral";
+    if(move.startsWith("+")) moveClass="up";
+    else if(move.startsWith("-")) moveClass="down";
+    else moveClass="neutral";
 
-    if (oldPos !== undefined) {
-      let diff = oldPos - newPos;
-
-      if (diff > 0) {
-        moveText = `▲ +${diff}`;
-        moveClass = "up";
-      } else if (diff < 0) {
-        moveText = `▼ ${diff}`;
-        moveClass = "down";
-      } else {
-        moveText = "— 0";
-      }
-    } else {
-      moveText = "NEW";
-    }
-
-    previousPositions[driver] = newPos;
-
-    tr.innerHTML = `
+    tr.innerHTML=`
       <td>${d[0]}</td>
       <td>${d[1]}</td>
       <td class="${i===0?'highlight':''}">${d[2]}</td>
-      <td class="${moveClass}">${moveText}</td>
+      <td class="${moveClass}">${move}</td>
       <td>${d[4]}</td>
       <td>${d[5]}</td>
       <td>${d[6]}</td>
