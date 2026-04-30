@@ -1,15 +1,167 @@
-<body onload="loadDrivers()">
-<h2>Drivers</h2>
+<!DOCTYPE html>
+<html>
+<head>
+  <title>K. Larson - Driver Profile</title>
 
-<table>
-  <thead>
-    <tr>
-      <th>Driver</th>
-      <th>Wins</th>
-    </tr>
-  </thead>
-  <tbody id="drivers"></tbody>
-</table>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0b0b0f;
+      color: white;
+    }
 
-<script src="script.js"></script>
+    header {
+      background: #d40000;
+      padding: 20px;
+      text-align: center;
+      font-size: 26px;
+      font-weight: bold;
+    }
+
+    .container {
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .card {
+      background: #15151c;
+      padding: 20px;
+      border-radius: 12px;
+      width: 750px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    }
+
+    .title {
+      font-size: 30px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #ffcc00;
+    }
+
+    .sub {
+      color: #aaa;
+      margin-bottom: 15px;
+    }
+
+    .stat {
+      margin: 6px 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .box {
+      background: #1f1f2a;
+      padding: 10px;
+      border-radius: 8px;
+    }
+
+    ul {
+      padding-left: 20px;
+    }
+
+    a {
+      color: #ffcc00;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .number {
+      font-size: 22px;
+      font-weight: bold;
+      color: #ffffff;
+      background: #000;
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <a href="standings.html">← Back to Standings</a>
+</header>
+
+<div class="container">
+
+  <div class="card">
+
+    <!-- DRIVER HEADER -->
+    <div class="title">Kyle Larson</div>
+    <div class="number">Car #5</div>
+    <div class="sub">Hendrick Motorsports • Chevrolet</div>
+
+    <hr>
+
+    <!-- STATS GRID -->
+    <div class="grid">
+
+      <div class="box">
+        <div class="stat">📊 Starts: 14</div>
+        <div class="stat">🏆 Points: 418</div>
+        <div class="stat">🥇 Wins: 0</div>
+      </div>
+
+      <div class="box">
+        <div class="stat">⭐ Top 5: 3</div>
+        <div class="stat">🔟 Top 10: 8</div>
+        <div class="stat">💥 DNFs: 0</div>
+      </div>
+
+    </div>
+
+    <hr>
+
+    <!-- SEASON PERFORMANCE -->
+    <h3>Season Performance</h3>
+
+    <div class="box">
+      <div class="stat">📈 Average Finish: Top 10 Contender</div>
+      <div class="stat">🔥 Form: Strong consistency, no wins yet</div>
+      <div class="stat">🟡 Playoff Status: #1 Seed</div>
+    </div>
+
+    <hr>
+
+    <!-- RECENT RESULTS -->
+    <h3>Recent Races</h3>
+
+    <div class="box">
+      <ul>
+        <li>P9 - Indy Road Course</li>
+        <li>P32 - Indianapolis</li>
+        <li>P8 - Richmond</li>
+        <li>P33 - Iowa</li>
+        <li>P22 - Michigan</li>
+      </ul>
+    </div>
+
+    <hr>
+
+    <!-- EXTRA INFO -->
+    <h3>Driver Info</h3>
+
+    <div class="box">
+      <div class="stat">🏁 Driving Style: Aggressive / High-speed specialist</div>
+      <div class="stat">🧠 Strength: Short tracks & intermediates</div>
+      <div class="stat">⚙️ Weakness: Occasional tire management issues</div>
+    </div>
+
+  </div>
+
+</div>
+
 </body>
+</html>
