@@ -71,19 +71,9 @@
       border-bottom: 3px solid #ffcc00;
     }
 
-    .up {
-      color: #00ff6a;
-      font-weight: bold;
-    }
-
-    .down {
-      color: #ff3b3b;
-      font-weight: bold;
-    }
-
-    .neutral {
-      color: white;
-    }
+    .up { color: #00ff6a; font-weight: bold; }
+    .down { color: #ff3b3b; font-weight: bold; }
+    .neutral { color: white; }
   </style>
 </head>
 
@@ -93,6 +83,7 @@
 
 <div class="container">
 
+  <!-- CONTROLS -->
   <div class="controls">
     <input id="search" placeholder="Search driver..." onkeyup="renderTable()">
 
@@ -129,10 +120,12 @@
 
 </div>
 
+<script src="data.js"></script>
+
 <script>
 
-// ---------------- DATA ----------------
-let data = [
+// ---------------- DATA (fallback if no data.js) ----------------
+let data = window.driversArray || [
   ["K. Larson",14,418,"+130",0,3,8,0,148,5,5],
   ["K. Busch",14,402,"+114",2,6,9,1,120,11,1],
   ["T. Reddick",14,398,"+110",2,5,7,0,139,11,1],
@@ -148,39 +141,12 @@ let data = [
   ["D. Hamlin",14,310,"+22",2,3,5,1,44,10,0],
   ["R. Blaney",14,310,"+22",0,2,3,1,61,0,0],
   ["M. Truex Jr.",14,299,"+11",0,3,4,0,49,0,0],
-  ["R. Chastain",14,294,"+6",1,2,3,0,62,5,0],
-
-  ["J. Haley",14,288,"-6",0,1,4,0,13,1,1],
-  ["J. Berry",14,284,"-10",0,2,6,2,27,0,0],
-  ["C. Elliott",14,284,"-10",0,0,3,1,47,0,0],
-  ["C. Buescher",14,272,"-22",0,1,3,2,30,0,0],
-  ["E. Jones",14,270,"-24",1,2,3,0,29,6,1],
-  ["C. Briscoe",14,262,"-32",0,2,3,0,6,0,0],
-  ["N. Gragson",14,255,"-39",0,1,2,0,53,0,0],
-  ["T. Goodon",14,249,"-45",0,0,3,2,7,1,1],
-  ["D. Suarez",14,244,"-50",0,0,4,0,26,1,1],
-  ["T. Dillon",14,243,"-51",0,0,2,0,16,0,0],
-  ["R. Stenhouse Jr.",14,228,"-66",0,0,1,1,33,0,0],
-  ["Z. Smithᴿ",14,227,"-67",0,0,3,0,36,0,0],
-  ["R. Preece",14,220,"-74",0,0,2,1,0,0,0],
-  ["C. LaJoie",14,215,"-79",0,1,1,0,48,0,0],
-  ["A. Almirola",14,207,"-87",0,1,1,0,31,0,0],
-  ["T. Gilliland",14,191,"-103",0,2,2,1,10,0,0],
-  ["A. Allmendinger",14,184,"-110",0,0,1,1,9,0,0],
-  ["M. McDowell",14,175,"-119",0,1,2,1,49,2,2],
-  ["B. McLeod",14,175,"-119",0,0,1,1,21,1,1],
-
-  ["J. Johnson",5,138,"-",0,3,3,0,15,0,0],
-  ["C. Hocevar",5,119,"-",0,1,1,0,48,1,1],
-  ["SV. Gisbergen",3,80,"-",0,1,1,0,0,0,0],
-  ["JH. Nemcheck",2,76,"-",0,1,1,0,5,0,0],
-  ["R. Newman",5,72,"-",0,0,1,0,4,0,0],
-  ["P. O'Ward",2,70,"-",1,1,1,0,11,6,1]
+  ["R. Chastain",14,294,"+6",1,2,3,0,62,5,0]
 ];
 
-// ---------------- SORT SYSTEM ----------------
-let sortDir = false;
+// ---------------- SORT ----------------
 let sortCol = 2;
+let asc = false;
 
 function clean(v){
   if(v === "-" || v === "" || v == null) return -999999;
@@ -191,16 +157,16 @@ function clean(v){
 function sortTable(col){
 
   if(sortCol === col){
-    sortDir = !sortDir;
+    asc = !asc;
   } else {
     sortCol = col;
-    sortDir = false;
+    asc = false;
   }
 
   data.sort((a,b)=>{
     let x = clean(a[col]);
     let y = clean(b[col]);
-    return sortDir ? x - y : y - x;
+    return asc ? x - y : y - x;
   });
 
   renderTable();
@@ -213,12 +179,18 @@ function renderTable(){
   body.innerHTML = "";
 
   let search = document.getElementById("search").value.toLowerCase();
+  let winsFilter = document.getElementById("filterWins").value;
+  let playoffFilter = document.getElementById("filterPlayoff").value;
 
-  let filtered = data.filter(d =>
-    d[0].toLowerCase().includes(search)
-  );
+  let filtered = data.filter(d=>{
+    let nameMatch = d[0].toLowerCase().includes(search);
+    let winsMatch = winsFilter === "wins" ? d[4] > 0 : true;
+    return nameMatch && winsMatch;
+  });
 
   filtered.forEach((d,i)=>{
+
+    if(playoffFilter === "playoff" && i >= 16) return;
 
     let tr = document.createElement("tr");
 
@@ -231,7 +203,11 @@ function renderTable(){
     else if(String(move).startsWith("-")) moveClass = "down";
 
     tr.innerHTML = `
-      <td>${d[0]}</td>
+      <td>
+        <a href="driver.html?name=${encodeURIComponent(d[0])}" style="color:white; text-decoration:none;">
+          ${d[0]}
+        </a>
+      </td>
       <td>${d[1]}</td>
       <td class="${i===0?'highlight':''}">${d[2]}</td>
       <td class="${moveClass}">${move}</td>
