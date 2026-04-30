@@ -20,6 +20,33 @@
       letter-spacing: 2px;
     }
 
+    /* 🔴 NEW TOP BAR (REPLACES HEADER VISUALLY) */
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      background: #d40000;
+      font-size: 28px;
+      font-weight: bold;
+      letter-spacing: 2px;
+    }
+
+    .topbar a {
+      font-size: 14px;
+      background: #111;
+      padding: 8px 12px;
+      border-radius: 6px;
+      color: white;
+      text-decoration: none;
+      font-weight: normal;
+    }
+
+    .topbar a:hover {
+      background: #222;
+      color: #ffcc00;
+    }
+
     .container {
       padding: 20px;
     }
@@ -89,7 +116,12 @@
 
 <body>
 
-<header>RACE STANDINGS</header>
+<!-- 🔴 UPDATED HEADER WITH DASHBOARD BUTTON -->
+<div class="topbar">
+  <div>RACE STANDINGS</div>
+
+  <a href="dashboard.html">⬅ Dashboard</a>
+</div>
 
 <div class="container">
 
@@ -190,7 +222,7 @@ let data = [
   ["H. Burton",1,3,"-",0,0,0,0,0,0,0]
 ];
 
-// SORT SYSTEM (UNCHANGED)
+/* ---------------- SORT ---------------- */
 let sortDir = false;
 let sortCol = 2;
 
@@ -217,7 +249,7 @@ function sortTable(col){
   renderTable();
 }
 
-// ---------------- RENDER ----------------
+/* ---------------- RENDER ---------------- */
 function renderTable(){
 
   let body = document.getElementById("body");
@@ -225,27 +257,21 @@ function renderTable(){
 
   let search = document.getElementById("search").value.toLowerCase();
 
-  // ✅ FIXED FILTER SECTION ONLY
   let winFilter = document.getElementById("filterWins").value;
   let playoffFilter = document.getElementById("filterPlayoff").value;
 
-  let filtered = data.filter((d, index) => {
+  let filtered = data.filter((d,i)=>{
 
     let nameMatch = d[0].toLowerCase().includes(search);
 
     let winsMatch = true;
-    if(winFilter === "wins"){
-      winsMatch = d[4] > 0;
-    }
+    if(winFilter === "wins") winsMatch = d[4] > 0;
 
     let playoffMatch = true;
-    if(playoffFilter === "playoff"){
-      playoffMatch = index < 16;
-    }
+    if(playoffFilter === "playoff") playoffMatch = i < 16;
 
     return nameMatch && winsMatch && playoffMatch;
   });
-  // ✅ END FIX
 
   filtered.forEach((d,i)=>{
 
