@@ -131,6 +131,7 @@
 
 <script>
 
+// ---------------- DATA ----------------
 let data = [
   ["K. Larson",14,418,"+130",0,3,8,0,148,5,5],
   ["K. Busch",14,402,"+114",2,6,9,1,120,11,1],
@@ -153,7 +154,6 @@ let data = [
   ["J. Berry",14,284,"-10",0,2,6,2,27,0,0],
   ["C. Elliott",14,284,"-10",0,0,3,1,47,0,0],
   ["C. Buescher",14,272,"-22",0,1,3,2,30,0,0],
-
   ["E. Jones",14,270,"-24",1,2,3,0,29,6,1],
   ["C. Briscoe",14,262,"-32",0,2,3,0,6,0,0],
   ["N. Gragson",14,255,"-39",0,1,2,0,53,0,0],
@@ -178,55 +178,59 @@ let data = [
   ["P. O'Ward",2,70,"-",1,1,1,0,11,6,1]
 ];
 
-let sortDir = true;
+// ---------------- SORT SYSTEM ----------------
+let sortDir = false;
+let sortCol = 2;
 
-function sortTable(col) {
+function clean(v){
+  if(v === "-" || v === "" || v == null) return -999999;
+  if(typeof v === "string") return Number(v.replace("+","")) || 0;
+  return v;
+}
+
+function sortTable(col){
+
+  if(sortCol === col){
+    sortDir = !sortDir;
+  } else {
+    sortCol = col;
+    sortDir = false;
+  }
+
   data.sort((a,b)=>{
-    let x=a[col], y=b[col];
-
-    if(typeof x==="string") x = x.replace("+","").replace("-","");
-    if(typeof y==="string") y = y.replace("+","").replace("-","");
-
-    return sortDir ? (y - x || (""+y).localeCompare(""+x)) : (x - y || (""+x).localeCompare(""+y));
+    let x = clean(a[col]);
+    let y = clean(b[col]);
+    return sortDir ? x - y : y - x;
   });
 
-  sortDir = !sortDir;
   renderTable();
 }
 
+// ---------------- RENDER ----------------
 function renderTable(){
 
-  let body=document.getElementById("body");
-  body.innerHTML="";
+  let body = document.getElementById("body");
+  body.innerHTML = "";
 
-  let search=document.getElementById("search").value.toLowerCase();
-  let winsFilter=document.getElementById("filterWins").value;
-  let playoffFilter=document.getElementById("filterPlayoff").value;
+  let search = document.getElementById("search").value.toLowerCase();
 
-  let sorted=[...data].sort((a,b)=>b[2]-a[2]);
-
-  let filtered=sorted.filter(d=>{
-    let nameMatch=d[0].toLowerCase().includes(search);
-    let winMatch=winsFilter==="wins"?d[4]>0:true;
-    return nameMatch&&winMatch;
-  });
+  let filtered = data.filter(d =>
+    d[0].toLowerCase().includes(search)
+  );
 
   filtered.forEach((d,i)=>{
 
-    if(playoffFilter==="playoff"&&i>=16)return;
+    let tr = document.createElement("tr");
 
-    let tr=document.createElement("tr");
+    if(i === 15) tr.classList.add("cutline");
 
-    if(i===15)tr.classList.add("cutline");
+    let move = d[3];
+    let moveClass = "neutral";
 
-    let move=d[3];
-    let moveClass="neutral";
+    if(String(move).startsWith("+")) moveClass = "up";
+    else if(String(move).startsWith("-")) moveClass = "down";
 
-    if(move.startsWith("+")) moveClass="up";
-    else if(move.startsWith("-")) moveClass="down";
-    else moveClass="neutral";
-
-    tr.innerHTML=`
+    tr.innerHTML = `
       <td>${d[0]}</td>
       <td>${d[1]}</td>
       <td class="${i===0?'highlight':''}">${d[2]}</td>
