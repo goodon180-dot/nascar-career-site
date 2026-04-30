@@ -1,15 +1,161 @@
-<body onload="loadDrivers()">
-<h2>Standings (by Wins)</h2>
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Race Standings</title>
 
-<table>
-  <thead>
-    <tr>
-      <th>Driver</th>
-      <th>Wins</th>
-    </tr>
-  </thead>
-  <tbody id="drivers"></tbody>
-</table>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0b0b0f;
+      color: white;
+    }
 
-<script src="script.js"></script>
+    header {
+      background: #d40000;
+      padding: 20px;
+      text-align: center;
+      font-size: 28px;
+      font-weight: bold;
+      letter-spacing: 2px;
+    }
+
+    .container {
+      padding: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #15151c;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: center;
+      border-bottom: 1px solid #2a2a35;
+    }
+
+    th {
+      background: #1f1f2a;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    th:hover {
+      background: #2a2a3a;
+    }
+
+    tr:hover {
+      background: #222232;
+    }
+
+    .highlight {
+      color: #ffcc00;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>RACE STANDINGS</header>
+
+<div class="container">
+  <table id="standingsTable">
+    <thead>
+      <tr>
+        <th onclick="sortTable(0)">Driver</th>
+        <th onclick="sortTable(1)">Starts</th>
+        <th onclick="sortTable(2)">Points</th>
+        <th onclick="sortTable(3)">+/-</th>
+        <th onclick="sortTable(4)">Wins</th>
+        <th onclick="sortTable(5)">Top 5</th>
+        <th onclick="sortTable(6)">Top 10</th>
+        <th onclick="sortTable(7)">DNF</th>
+        <th onclick="sortTable(8)">Laps Led</th>
+        <th onclick="sortTable(9)">Playoff Pts</th>
+        <th onclick="sortTable(10)">Stage Wins</th>
+      </tr>
+    </thead>
+
+    <tbody id="body"></tbody>
+  </table>
+</div>
+
+<script>
+let data = [
+  ["K. Larson",14,418,"+130",3,8,"", "",148,5,5],
+  ["K. Busch",14,402,"+114",2,6,9,1,120,11,1],
+  ["T. Reddick",14,398,"+110",2,5,7,"",139,11,1],
+  ["A. Bowman",14,398,"+110",1,2,3,1,89,9,4],
+  ["B. Keselowski",14,380,"+92",1,6,7,1,96,7,2],
+  ["B. Wallace",14,351,"+63","",2,5,"",24,"",""],
+  ["A. Dillon",14,348,"+60","","",4,"",18,1,1],
+  ["A. Cindric",14,346,"+58","",3,6,"",88,2,2],
+  ["W. Byron",14,325,"+37",1,3,3,"",42,5,""],
+  ["J. Logano",14,324,"+36",1,3,5,"",112,6,1],
+  ["C. Bell",14,323,"+35","",3,6,1,67,2,2],
+  ["T. Gibbs",14,315,"+27",1,2,4,1,75,5,""],
+  ["D. Hamlin",14,310,"+22",2,3,5,1,44,10,""],
+  ["R. Blaney",14,310,"+22","",2,3,1,61,"",""],
+  ["M. Truex Jr.",14,299,"+11","",3,4,"",49,"",""],
+  ["R. Chastain",14,294,"+6",1,2,3,"",62,5,""],
+  ["J. Haley",14,288,"-6","",1,4,"",13,1,1],
+  ["J. Berry",14,284,"-10","",2,6,2,27,"",""],
+  ["C. Elliott",14,284,"-10","","",3,1,47,"",""],
+  ["C. Buescher",14,272,"-22","",1,3,2,30,"",""]
+];
+
+// ---- auto sort by points on load ----
+data.sort((a,b) => b[2] - a[2]);
+
+function renderTable() {
+  const body = document.getElementById("body");
+  body.innerHTML = "";
+
+  data.forEach(row => {
+    const tr = document.createElement("tr");
+
+    row.forEach((cell, i) => {
+      const td = document.createElement("td");
+      td.textContent = cell;
+
+      // highlight leader
+      if (i === 2 && row[2] === data[0][2]) {
+        td.classList.add("highlight");
+      }
+
+      tr.appendChild(td);
+    });
+
+    body.appendChild(tr);
+  });
+}
+
+// ---- sorting ----
+let sortDirection = true;
+
+function sortTable(col) {
+  data.sort((a, b) => {
+    let x = a[col];
+    let y = b[col];
+
+    x = x === "" ? -9999 : x;
+    y = y === "" ? -9999 : y;
+
+    return sortDirection ? (y - x || (''+y).localeCompare(''+x)) : (x - y || (''+x).localeCompare(''+y));
+  });
+
+  sortDirection = !sortDirection;
+  renderTable();
+}
+
+// initial render
+renderTable();
+</script>
+
 </body>
+</html>
