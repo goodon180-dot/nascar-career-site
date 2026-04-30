@@ -67,14 +67,25 @@
       font-weight: bold;
     }
 
-    /* 🟡 PLAYOFF CUT LINE */
     .cutline {
       border-top: 3px solid #ffcc00;
     }
 
-    /* rookie highlight */
-    .rookie {
-      color: #00d4ff;
+    /* movement styles */
+    .up {
+      color: #00ff6a;
+      font-weight: bold;
+      text-shadow: 0 0 8px rgba(0,255,106,0.6);
+    }
+
+    .down {
+      color: #ff3b3b;
+      font-weight: bold;
+      text-shadow: 0 0 8px rgba(255,59,59,0.6);
+    }
+
+    .neutral {
+      color: #aaa;
     }
   </style>
 </head>
@@ -85,7 +96,6 @@
 
 <div class="container">
 
-  <!-- CONTROLS -->
   <div class="controls">
     <input id="search" placeholder="Search driver..." onkeyup="renderTable()">
 
@@ -96,7 +106,7 @@
 
     <select id="filterPlayoff" onchange="renderTable()">
       <option value="all">All</option>
-      <option value="playoff">Top 16 (Playoff Cut)</option>
+      <option value="playoff">Top 16 Cut Line</option>
     </select>
   </div>
 
@@ -106,7 +116,7 @@
         <th onclick="sortTable(0)">Driver</th>
         <th onclick="sortTable(1)">Starts</th>
         <th onclick="sortTable(2)">Points</th>
-        <th onclick="sortTable(3)">+/-</th>
+        <th>Move</th>
         <th onclick="sortTable(4)">Wins</th>
         <th onclick="sortTable(5)">Top 5</th>
         <th onclick="sortTable(6)">Top 10</th>
@@ -119,12 +129,15 @@
 
     <tbody id="body"></tbody>
   </table>
+
 </div>
 
 <script>
 
+let previousPositions = {};
+
 let data = [
-  ["K. Larson",14,418,"+130","",3,8,"",148,5,5],
+  ["K. Larson",14,418,"+130","",3,8, "",148,5,5],
   ["K. Busch",14,402,"+114",2,6,9,1,120,11,1],
   ["T. Reddick",14,398,"+110",2,5,7,"",139,11,1],
   ["A. Bowman",14,398,"+110",1,2,3,1,89,9,4],
@@ -158,16 +171,10 @@ let data = [
   ["T. Gilliland",14,191,"-103","",2,2,1,10,"",""],
   ["A. Allmendinger",14,184,"-110","","",1,1,9,"",""],
   ["M. McDowell",14,175,"-119","",1,2,1,49,2,2],
-  ["B. McLeod",14,175,"-119","","",1,1,21,1,1],
-  ["J. Johnson",5,138,"-","",3,3,"",15,"",""],
-  ["C. Hocevar",5,119,"-","",1,1,"",48,1,1],
-  ["SV. Gisbergen",3,80,"-","",1,1,"","",""],
-  ["JH. Nemcheck",2,76,"-","",1,1,"",5,"",""],
-  ["R. Newman",5,72,"-","","",1,"",4,"",""],
-  ["P. O'Ward",2,70,"-",1,1,1,"",11,6,1]
+  ["B. McLeod",14,175,"-119","","",1,1,21,1,1]
 ];
 
-// sort by points initially
+// sort by points on load
 data.sort((a,b) => b[2] - a[2]);
 
 let sortDir = true;
@@ -179,6 +186,7 @@ function sortTable(col) {
 }
 
 function renderTable() {
+
   let body = document.getElementById("body");
   body.innerHTML = "";
 
@@ -196,19 +204,43 @@ function renderTable() {
 
   filtered.forEach((d,i) => {
 
-    // playoff filter
     if (playoffFilter === "playoff" && i >= 16) return;
 
     let tr = document.createElement("tr");
 
-    // 🟡 CUT LINE
+    // 🟡 cut line
     if (i === 16) tr.classList.add("cutline");
+
+    let driver = d[0];
+    let oldPos = previousPositions[driver];
+    let newPos = i;
+
+    let moveText = "";
+    let moveClass = "neutral";
+
+    if (oldPos !== undefined) {
+      let diff = oldPos - newPos;
+
+      if (diff > 0) {
+        moveText = `▲ +${diff}`;
+        moveClass = "up";
+      } else if (diff < 0) {
+        moveText = `▼ ${diff}`;
+        moveClass = "down";
+      } else {
+        moveText = "— 0";
+      }
+    } else {
+      moveText = "NEW";
+    }
+
+    previousPositions[driver] = newPos;
 
     tr.innerHTML = `
       <td>${d[0]}</td>
       <td>${d[1]}</td>
       <td class="${i===0?'highlight':''}">${d[2]}</td>
-      <td>${d[3]}</td>
+      <td class="${moveClass}">${moveText}</td>
       <td>${d[4]}</td>
       <td>${d[5]}</td>
       <td>${d[6]}</td>
