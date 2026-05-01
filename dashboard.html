@@ -89,36 +89,34 @@
 
 <body>
 
+<!-- NAVIGATION (UPDATED) -->
 <nav>
   <a href="dashboard.html">Dashboard</a>
   <a href="standings.html">Standings</a>
   <a href="drivers.html">Drivers</a>
   <a href="results.html">Results</a>
+  <a href="results-history.html">Results History</a> <!-- ✅ ADDED -->
 </nav>
 
 <header>DASHBOARD</header>
 
 <div class="grid">
 
-  <!-- TOP 10 -->
   <div class="card">
     <h3>📊 Top 10</h3>
     <div id="top10" class="list"></div>
   </div>
 
-  <!-- CUTLINE -->
   <div class="card">
     <h3>🟡 Playoff Cutline</h3>
     <div id="cutline" class="list"></div>
   </div>
 
-  <!-- STATS -->
   <div class="card">
     <h3>🔥 League Stats</h3>
     <div id="stats"></div>
   </div>
 
-  <!-- LAST RACE -->
   <div class="card">
     <h3>🏁 Last Race - Indy Road Course</h3>
     <div class="list">
@@ -148,25 +146,7 @@ let data = [
   ["D. Hamlin",310,2,"+22",44,3],
   ["R. Blaney",310,0,"+22",61,2],
   ["M. Truex Jr.",299,0,"+11",49,3],
-  ["R. Chastain",294,1,"+6",62,2],
-
-  ["J. Haley",288,0,"-6",13,1],
-  ["J. Berry",284,0,"-10",27,0],
-  ["C. Elliott",284,0,"-10",47,0],
-  ["C. Buescher",272,0,"-22",30,0],
-  ["E. Jones",270,1,"-24",29,2],
-  ["C. Briscoe",262,0,"-32",6,0],
-  ["N. Gragson",255,0,"-39",53,0],
-  ["T. Goodon",249,0,"-45",7,1],
-  ["D. Suarez",244,0,"-50",26,1],
-  ["T. Dillon",243,0,"-51",16,0],
-  ["R. Stenhouse Jr.",228,0,"-66",33,0],
-  ["Z. Smithᴿ",227,0,"-67",36,0],
-  ["R. Preece",220,0,"-74",0,0],
-  ["C. LaJoie",215,0,"-79",48,0],
-  ["A. Almirola",207,0,"-87",31,0],
-  ["T. Gilliland",191,0,"-103",10,0],
-  ["A. Allmendinger",184,0,"-110",9,0]
+  ["R. Chastain",294,1,"+6",62,2]
 ];
 
 data.sort((a,b)=>b[1]-a[1]);
