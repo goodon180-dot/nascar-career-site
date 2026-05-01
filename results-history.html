@@ -26,13 +26,19 @@
       border-radius: 10px;
     }
 
-    .track {
+    .title {
       color: #ffcc00;
       font-weight: bold;
+      margin-bottom: 10px;
     }
 
     .driver {
-      padding: 5px 0;
+      padding: 4px 0;
+      border-bottom: 1px solid #2a2a35;
+    }
+
+    .driver:last-child {
+      border-bottom: none;
     }
   </style>
 </head>
@@ -45,9 +51,9 @@
 
 <script>
 
-function loadHistory() {
-  let history = JSON.parse(localStorage.getItem("raceHistory")) || [];
+function loadHistory(){
 
+  let history = JSON.parse(localStorage.getItem("raceHistory")) || [];
   let container = document.getElementById("history");
 
   if(history.length === 0){
@@ -59,13 +65,19 @@ function loadHistory() {
 
     return `
       <div class="race">
-        <div class="track">🏁 ${race.track} - ${race.date}</div>
-        <br>
-        ${race.results.map(r =>
-          `<div class="driver">${r.driver} — ${r.points} pts</div>`
-        ).join("")}
+        <div class="title">
+          🏁 ${race.track} — ${race.date} (${race.laps} laps)
+        </div>
+
+        ${race.results.map((r,i)=>`
+          <div class="driver">
+            ${i+1}. ${r.driver} — ${r.points} pts
+          </div>
+        `).join("")}
+
       </div>
     `;
+
   }).join("");
 }
 
