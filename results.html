@@ -1,26 +1,248 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Results</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Race Results Input</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0b0b0f;
+      color: white;
+    }
+
+    header {
+      background: #d40000;
+      padding: 20px;
+      text-align: center;
+      font-size: 26px;
+      font-weight: bold;
+    }
+
+    .container {
+      padding: 20px;
+    }
+
+    .race-info {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 15px;
+    }
+
+    .race-info input {
+      padding: 8px;
+      border-radius: 5px;
+      border: none;
+      background: #222;
+      color: white;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #15151c;
+      margin-top: 10px;
+    }
+
+    th, td {
+      padding: 8px;
+      text-align: center;
+      border-bottom: 1px solid #2a2a35;
+      font-size: 14px;
+    }
+
+    th {
+      background: #1f1f2a;
+    }
+
+    select, input {
+      padding: 5px;
+      border-radius: 4px;
+      border: none;
+      background: #222;
+      color: white;
+      text-align: center;
+    }
+
+    button {
+      padding: 10px 15px;
+      background: #d40000;
+      border: none;
+      color: white;
+      cursor: pointer;
+      margin-top: 10px;
+      border-radius: 5px;
+    }
+
+    button:hover {
+      background: #ff0000;
+    }
+
+    .winner {
+      color: gold;
+      font-weight: bold;
+    }
+
+    .total {
+      font-weight: bold;
+      color: #00d4ff;
+    }
+  </style>
 </head>
 
-<body onload="loadResults()">
+<body>
 
-<h2>Race Results</h2>
+<header>RACE RESULTS INPUT</header>
+
+<div class="container">
+
+<!-- RACE INFO -->
+<div class="race-info">
+  <input id="track" placeholder="Track Name">
+  <input id="date" type="date">
+  <input id="laps" type="number" placeholder="Laps">
+</div>
+
+<button onclick="calculate()">⚡ Calculate Race</button>
 
 <table>
   <thead>
     <tr>
-      <th>Race</th>
-      <th>Track</th>
-      <th>Winner</th>
+      <th>Pos</th>
+      <th>Driver</th>
+      <th>Stage 1</th>
+      <th>Stage 2</th>
+      <th>Laps Led</th>
+      <th>Race Win</th>
+      <th>Stage Wins</th>
+      <th>Finish Pts</th>
+      <th>Total Pts</th>
+      <th>Playoff Pts</th>
     </tr>
   </thead>
-  <tbody id="results"></tbody>
+
+  <tbody id="body"></tbody>
 </table>
 
-<script src="script.js"></script>
+</div>
+
+<script>
+
+// ---------------- DRIVERS ----------------
+let drivers = [
+"K. Larson","K. Busch","T. Reddick","A. Bowman","B. Keselowski",
+"B. Wallace","A. Dillon","A. Cindric","W. Byron","J. Logano",
+"C. Bell","T. Gibbs","D. Hamlin","R. Blaney","M. Truex Jr.",
+"R. Chastain","J. Haley","J. Berry","C. Elliott","C. Buescher",
+"E. Jones","C. Briscoe","N. Gragson","T. Goodon","D. Suarez",
+"T. Dillon","R. Stenhouse Jr.","Z. Smithᴿ","R. Preece",
+"C. LaJoie","A. Almirola","T. Gilliland","A. Allmendinger",
+"M. McDowell","B. McLeod","J. Johnson","C. Hocevar",
+"SV. Gisbergen","JH. Nemcheck","R. Newman","P. O'Ward",
+"D. Hemric","C. Smith","S. Creed","Ku. Busch",
+"J. Love","J. Yeley","A. Hill","C. Heim",
+"J. Allgaier","S. Mayer","H. Burton"
+];
+
+// ---------------- TABLE ----------------
+function load() {
+  let body = document.getElementById("body");
+
+  for (let i = 0; i < 40; i++) {
+
+    let options = drivers.map(d => `<option>${d}</option>`).join("");
+
+    body.innerHTML += `
+      <tr>
+        <td>${i+1}</td>
+
+        <td>
+          <select class="driver">
+            <option value="">Select Driver</option>
+            ${options}
+          </select>
+        </td>
+
+        <td><input type="number"></td>
+        <td><input type="number"></td>
+        <td><input type="number"></td>
+
+        <td><input type="checkbox"></td>
+
+        <td><input type="number"></td>
+
+        <td class="finishPts">0</td>
+        <td class="totalPts">0</td>
+        <td class="playoffPts">0</td>
+      </tr>
+    `;
+  }
+}
+
+load();
+
+// ---------------- FIXED NASCAR FINISH POINTS ----------------
+function finishPoints(pos) {
+  if (pos === 1) return 40;
+  if (pos === 2) return 35;
+
+  let pts = 35 - (pos - 2);
+  return pts < 1 ? 1 : pts;
+}
+
+// ---------------- CALCULATE ----------------
+function calculate() {
+
+  let rows = document.querySelectorAll("#body tr");
+
+  rows.forEach((row, index) => {
+
+    let stage1 = parseInt(row.cells[2].querySelector("input").value) || 0;
+    let stage2 = parseInt(row.cells[3].querySelector("input").value) || 0;
+    let lapsLed = parseInt(row.cells[4].querySelector("input").value) || 0;
+
+    let raceWin = row.cells[5].querySelector("input").checked;
+    let stageWins = parseInt(row.cells[6].querySelector("input").value) || 0;
+
+    // FINISH POINTS (UPDATED SYSTEM)
+    let finishPts = finishPoints(index + 1);
+
+    // STAGE POINTS
+    let stagePts = stage1 + stage2;
+
+    // TOTAL POINTS
+    let totalPts = finishPts + stagePts;
+
+    // PLAYOFF POINTS
+    let playoff = 0;
+    if (raceWin) playoff += 5;
+    playoff += stageWins;
+
+    // UPDATE TABLE
+    row.querySelector(".finishPts").innerText = finishPts;
+    row.querySelector(".totalPts").innerText = totalPts;
+    row.querySelector(".playoffPts").innerText = playoff;
+
+    if (index === 0) {
+      row.classList.add("winner");
+    } else {
+      row.classList.remove("winner");
+    }
+
+  });
+
+  let track = document.getElementById("track").value;
+  let date = document.getElementById("date").value;
+  let laps = document.getElementById("laps").value;
+
+  alert(`Race Saved:
+Track: ${track}
+Date: ${date}
+Laps: ${laps}`);
+}
+
+</script>
 
 </body>
 </html>
