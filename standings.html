@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Race Standings</title>
+  <title>NASCAR Standings</title>
 
   <style>
     body {
@@ -18,33 +18,6 @@
       font-size: 28px;
       font-weight: bold;
       letter-spacing: 2px;
-    }
-
-    /* 🔴 NEW TOP BAR (REPLACES HEADER VISUALLY) */
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px;
-      background: #d40000;
-      font-size: 28px;
-      font-weight: bold;
-      letter-spacing: 2px;
-    }
-
-    .topbar a {
-      font-size: 14px;
-      background: #111;
-      padding: 8px 12px;
-      border-radius: 6px;
-      color: white;
-      text-decoration: none;
-      font-weight: normal;
-    }
-
-    .topbar a:hover {
-      background: #222;
-      color: #ffcc00;
     }
 
     .container {
@@ -69,20 +42,17 @@
       width: 100%;
       border-collapse: collapse;
       background: #15151c;
-      border-radius: 8px;
-      overflow: hidden;
     }
 
     th, td {
       padding: 10px;
       text-align: center;
       border-bottom: 1px solid #2a2a35;
+      cursor: pointer;
     }
 
     th {
       background: #1f1f2a;
-      cursor: pointer;
-      user-select: none;
     }
 
     tr:hover {
@@ -94,65 +64,52 @@
       font-weight: bold;
     }
 
+    /* CUT LINE */
     .cutline td {
       border-bottom: 3px solid #ffcc00;
     }
 
-    .up {
-      color: #00ff6a;
-      font-weight: bold;
-    }
-
-    .down {
-      color: #ff3b3b;
-      font-weight: bold;
-    }
-
-    .neutral {
-      color: white;
-    }
+    /* MOVEMENT COLORS */
+    .up { color: #00ff6a; font-weight: bold; }
+    .down { color: #ff3b3b; font-weight: bold; }
+    .neutral { color: white; }
   </style>
 </head>
 
 <body>
 
-<!-- 🔴 UPDATED HEADER WITH DASHBOARD BUTTON -->
-<div class="topbar">
-  <div>RACE STANDINGS</div>
-
-  <a href="dashboard.html">⬅ Dashboard</a>
-</div>
+<header>NASCAR STANDINGS</header>
 
 <div class="container">
 
   <div class="controls">
-    <input id="search" placeholder="Search driver..." onkeyup="renderTable()">
+    <input id="search" placeholder="Search driver..." onkeyup="render()">
 
-    <select id="filterWins" onchange="renderTable()">
+    <select id="winsFilter" onchange="render()">
       <option value="all">All Drivers</option>
       <option value="wins">Has Wins</option>
     </select>
 
-    <select id="filterPlayoff" onchange="renderTable()">
+    <select id="playoffFilter" onchange="render()">
       <option value="all">All</option>
-      <option value="playoff">Top 16 Cut Line</option>
+      <option value="playoff">Playoff Cut (Top 16)</option>
     </select>
   </div>
 
   <table>
     <thead>
       <tr>
-        <th onclick="sortTable(0)">Driver</th>
-        <th onclick="sortTable(1)">Starts</th>
-        <th onclick="sortTable(2)">Points</th>
-        <th onclick="sortTable(3)">+/-</th>
-        <th onclick="sortTable(4)">Wins</th>
-        <th onclick="sortTable(5)">Top 5</th>
-        <th onclick="sortTable(6)">Top 10</th>
-        <th onclick="sortTable(7)">DNF</th>
-        <th onclick="sortTable(8)">Laps Led</th>
-        <th onclick="sortTable(9)">Playoff Pts</th>
-        <th onclick="sortTable(10)">Stage Wins</th>
+        <th onclick="sort(0)">Driver</th>
+        <th onclick="sort(1)">Starts</th>
+        <th onclick="sort(2)">Points</th>
+        <th onclick="sort(3)">+/-</th>
+        <th onclick="sort(4)">Wins</th>
+        <th onclick="sort(5)">Top 5</th>
+        <th onclick="sort(6)">Top 10</th>
+        <th onclick="sort(7)">DNF</th>
+        <th onclick="sort(8)">Laps Led</th>
+        <th onclick="sort(9)">Playoff Pts</th>
+        <th onclick="sort(10)">Stage Wins</th>
       </tr>
     </thead>
 
@@ -163,7 +120,7 @@
 
 <script>
 
-// FULL DRIVER LIST (COMPLETE)
+// ---------------- DATA (CANONICAL LIST) ----------------
 let data = [
   ["K. Larson",14,418,"+130",0,3,8,0,148,5,5],
   ["K. Busch",14,402,"+114",2,6,9,1,120,11,1],
@@ -186,7 +143,6 @@ let data = [
   ["J. Berry",14,284,"-10",0,2,6,2,27,0,0],
   ["C. Elliott",14,284,"-10",0,0,3,1,47,0,0],
   ["C. Buescher",14,272,"-22",0,1,3,2,30,0,0],
-
   ["E. Jones",14,270,"-24",1,2,3,0,29,6,1],
   ["C. Briscoe",14,262,"-32",0,2,3,0,6,0,0],
   ["N. Gragson",14,255,"-39",0,1,2,0,53,0,0],
@@ -222,74 +178,61 @@ let data = [
   ["H. Burton",1,3,"-",0,0,0,0,0,0,0]
 ];
 
-/* ---------------- SORT ---------------- */
-let sortDir = false;
-let sortCol = 2;
+// ---------------- SORT ----------------
+let dir = false;
+let col = 2;
 
-function clean(v){
-  if(v === "-" || v === "" || v == null) return -999999;
-  if(typeof v === "string") return Number(v.replace("+","")) || 0;
-  return v;
-}
-
-function sortTable(col){
-  if(sortCol === col){
-    sortDir = !sortDir;
-  } else {
-    sortCol = col;
-    sortDir = false;
-  }
+function sort(c){
+  if(col === c) dir = !dir;
+  else { col = c; dir = false; }
 
   data.sort((a,b)=>{
-    let x = clean(a[col]);
-    let y = clean(b[col]);
-    return sortDir ? x - y : y - x;
+    let x = a[c], y = b[c];
+
+    if(typeof x === "string") x = x.replace("+","") * 1;
+    if(typeof y === "string") y = y.replace("+","") * 1;
+
+    return dir ? x - y : y - x;
   });
 
-  renderTable();
+  render();
 }
 
-/* ---------------- RENDER ---------------- */
-function renderTable(){
+// ---------------- RENDER ----------------
+function render(){
 
   let body = document.getElementById("body");
   body.innerHTML = "";
 
   let search = document.getElementById("search").value.toLowerCase();
+  let winsFilter = document.getElementById("winsFilter").value;
+  let playoffFilter = document.getElementById("playoffFilter").value;
 
-  let winFilter = document.getElementById("filterWins").value;
-  let playoffFilter = document.getElementById("filterPlayoff").value;
+  let sorted = [...data].sort((a,b)=>b[2]-a[2]);
 
-  let filtered = data.filter((d,i)=>{
-
-    let nameMatch = d[0].toLowerCase().includes(search);
-
-    let winsMatch = true;
-    if(winFilter === "wins") winsMatch = d[4] > 0;
-
-    let playoffMatch = true;
-    if(playoffFilter === "playoff") playoffMatch = i < 16;
-
-    return nameMatch && winsMatch && playoffMatch;
+  let filtered = sorted.filter(d=>{
+    let nameOk = d[0].toLowerCase().includes(search);
+    let winOk = winsFilter==="wins" ? d[4]>0 : true;
+    return nameOk && winOk;
   });
 
   filtered.forEach((d,i)=>{
 
+    if(playoffFilter==="playoff" && i>=16) return;
+
     let tr = document.createElement("tr");
 
-    if(i === 15) tr.classList.add("cutline");
+    if(i===16) tr.classList.add("cutline");
 
-    let move = d[3];
     let moveClass = "neutral";
-
-    if(String(move).startsWith("+")) moveClass = "up";
-    else if(String(move).startsWith("-")) moveClass = "down";
+    if(d[3].startsWith("+")) moveClass="up";
+    else if(d[3].startsWith("-")) moveClass="down";
 
     tr.innerHTML = `
       <td>${d[0]}</td>
       <td>${d[1]}</td>
       <td class="${i===0?'highlight':''}">${d[2]}</td>
-      <td class="${moveClass}">${move}</td>
+      <td class="${moveClass}">${d[3]}</td>
       <td>${d[4]}</td>
       <td>${d[5]}</td>
       <td>${d[6]}</td>
@@ -303,7 +246,7 @@ function renderTable(){
   });
 }
 
-renderTable();
+render();
 
 </script>
 
