@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Race Results Input</title>
+  <title>Race Results</title>
 
   <style>
     body {
@@ -15,231 +15,155 @@
       background: #d40000;
       padding: 20px;
       text-align: center;
-      font-size: 26px;
+      font-size: 28px;
       font-weight: bold;
+      letter-spacing: 2px;
     }
 
     .container {
       padding: 20px;
     }
 
-    .race-info {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 15px;
-    }
-
-    .race-info input {
+    input, select, button {
       padding: 8px;
+      margin: 5px;
       border-radius: 5px;
       border: none;
-      background: #222;
-      color: white;
+      outline: none;
+    }
+
+    button {
+      background: #ffcc00;
+      font-weight: bold;
+      cursor: pointer;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
       background: #15151c;
-      margin-top: 10px;
+      margin-top: 15px;
     }
 
     th, td {
       padding: 8px;
       text-align: center;
       border-bottom: 1px solid #2a2a35;
-      font-size: 14px;
     }
 
     th {
       background: #1f1f2a;
     }
 
-    select, input {
-      padding: 5px;
-      border-radius: 4px;
-      border: none;
-      background: #222;
-      color: white;
-      text-align: center;
-    }
-
-    button {
-      padding: 10px 15px;
-      background: #d40000;
-      border: none;
-      color: white;
-      cursor: pointer;
-      margin-top: 10px;
-      border-radius: 5px;
-    }
-
-    button:hover {
-      background: #ff0000;
-    }
-
-    .winner {
-      color: gold;
-      font-weight: bold;
-    }
-
-    .total {
-      font-weight: bold;
-      color: #00d4ff;
+    .topbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
     }
   </style>
 </head>
 
 <body>
 
-<header>RACE RESULTS INPUT</header>
+<header>RACE RESULTS CALCULATOR</header>
 
 <div class="container">
 
-<!-- RACE INFO -->
-<div class="race-info">
-  <input id="track" placeholder="Track Name">
-  <input id="date" type="date">
-  <input id="laps" type="number" placeholder="Laps">
-</div>
+  <div class="topbar">
+    <input id="track" placeholder="Track name">
+    <input id="date" type="date">
+    <input id="laps" placeholder="Race Laps">
 
-<button onclick="calculate()">⚡ Calculate Race</button>
+    <button onclick="calculateRace()">Calculate Race</button>
+    <button onclick="saveRace()">Save Race</button>
+  </div>
 
-<table>
-  <thead>
-    <tr>
-      <th>Pos</th>
-      <th>Driver</th>
-      <th>Stage 1</th>
-      <th>Stage 2</th>
-      <th>Laps Led</th>
-      <th>Race Win</th>
-      <th>Stage Wins</th>
-      <th>Finish Pts</th>
-      <th>Total Pts</th>
-      <th>Playoff Pts</th>
-    </tr>
-  </thead>
-
-  <tbody id="body"></tbody>
-</table>
+  <table>
+    <thead>
+      <tr>
+        <th>Pos</th>
+        <th>Driver</th>
+        <th>Points</th>
+      </tr>
+    </thead>
+    <tbody id="results"></tbody>
+  </table>
 
 </div>
 
 <script>
 
-// ---------------- DRIVERS ----------------
+let results = [];
+
+// YOUR POINT SYSTEM
+function getPoints(pos){
+  if(pos === 1) return 40;
+  if(pos === 2) return 35;
+  if(pos === 3) return 34;
+  if(pos === 4) return 33;
+  if(pos === 5) return 32;
+  if(pos <= 36) return 40 - (pos - 1);
+  return 1;
+}
+
+// SAMPLE DRIVER LIST (replace with dropdown later if you want)
 let drivers = [
-"K. Larson","K. Busch","T. Reddick","A. Bowman","B. Keselowski",
-"B. Wallace","A. Dillon","A. Cindric","W. Byron","J. Logano",
-"C. Bell","T. Gibbs","D. Hamlin","R. Blaney","M. Truex Jr.",
-"R. Chastain","J. Haley","J. Berry","C. Elliott","C. Buescher",
-"E. Jones","C. Briscoe","N. Gragson","T. Goodon","D. Suarez",
-"T. Dillon","R. Stenhouse Jr.","Z. Smithᴿ","R. Preece",
-"C. LaJoie","A. Almirola","T. Gilliland","A. Allmendinger",
-"M. McDowell","B. McLeod","J. Johnson","C. Hocevar",
-"SV. Gisbergen","JH. Nemcheck","R. Newman","P. O'Ward",
-"D. Hemric","C. Smith","S. Creed","Ku. Busch",
-"J. Love","J. Yeley","A. Hill","C. Heim",
-"J. Allgaier","S. Mayer","H. Burton"
+  "K. Larson","K. Busch","T. Reddick","A. Bowman","B. Keselowski",
+  "B. Wallace","A. Dillon","A. Cindric","W. Byron","J. Logano",
+  "C. Bell","T. Gibbs","D. Hamlin","R. Blaney","M. Truex Jr.",
+  "R. Chastain","J. Haley","J. Berry","C. Elliott","C. Buescher"
 ];
 
-// ---------------- TABLE ----------------
-function load() {
-  let body = document.getElementById("body");
+function calculateRace(){
 
-  for (let i = 0; i < 40; i++) {
+  let tbody = document.getElementById("results");
+  tbody.innerHTML = "";
 
-    let options = drivers.map(d => `<option>${d}</option>`).join("");
+  results = [];
 
-    body.innerHTML += `
+  drivers.forEach((d,i)=>{
+
+    let pos = i + 1;
+    let pts = getPoints(pos);
+
+    results.push({
+      driver: d,
+      points: pts
+    });
+
+    tbody.innerHTML += `
       <tr>
-        <td>${i+1}</td>
-
-        <td>
-          <select class="driver">
-            <option value="">Select Driver</option>
-            ${options}
-          </select>
-        </td>
-
-        <td><input type="number"></td>
-        <td><input type="number"></td>
-        <td><input type="number"></td>
-
-        <td><input type="checkbox"></td>
-
-        <td><input type="number"></td>
-
-        <td class="finishPts">0</td>
-        <td class="totalPts">0</td>
-        <td class="playoffPts">0</td>
+        <td>${pos}</td>
+        <td>${d}</td>
+        <td>${pts}</td>
       </tr>
     `;
-  }
-}
-
-load();
-
-// ---------------- FIXED NASCAR FINISH POINTS ----------------
-function finishPoints(pos) {
-  if (pos === 1) return 40;
-  if (pos === 2) return 35;
-
-  let pts = 35 - (pos - 2);
-  return pts < 1 ? 1 : pts;
-}
-
-// ---------------- CALCULATE ----------------
-function calculate() {
-
-  let rows = document.querySelectorAll("#body tr");
-
-  rows.forEach((row, index) => {
-
-    let stage1 = parseInt(row.cells[2].querySelector("input").value) || 0;
-    let stage2 = parseInt(row.cells[3].querySelector("input").value) || 0;
-    let lapsLed = parseInt(row.cells[4].querySelector("input").value) || 0;
-
-    let raceWin = row.cells[5].querySelector("input").checked;
-    let stageWins = parseInt(row.cells[6].querySelector("input").value) || 0;
-
-    // FINISH POINTS (UPDATED SYSTEM)
-    let finishPts = finishPoints(index + 1);
-
-    // STAGE POINTS
-    let stagePts = stage1 + stage2;
-
-    // TOTAL POINTS
-    let totalPts = finishPts + stagePts;
-
-    // PLAYOFF POINTS
-    let playoff = 0;
-    if (raceWin) playoff += 5;
-    playoff += stageWins;
-
-    // UPDATE TABLE
-    row.querySelector(".finishPts").innerText = finishPts;
-    row.querySelector(".totalPts").innerText = totalPts;
-    row.querySelector(".playoffPts").innerText = playoff;
-
-    if (index === 0) {
-      row.classList.add("winner");
-    } else {
-      row.classList.remove("winner");
-    }
-
   });
+}
 
-  let track = document.getElementById("track").value;
-  let date = document.getElementById("date").value;
-  let laps = document.getElementById("laps").value;
+// 💾 SAVE + REDIRECT SYSTEM
+function saveRace(){
 
-  alert(`Race Saved:
-Track: ${track}
-Date: ${date}
-Laps: ${laps}`);
+  if(results.length === 0){
+    alert("Please calculate race first");
+    return;
+  }
+
+  let raceData = {
+    track: document.getElementById("track").value || "Unknown Track",
+    date: document.getElementById("date").value || "No Date",
+    laps: document.getElementById("laps").value || "N/A",
+    results: results
+  };
+
+  let history = JSON.parse(localStorage.getItem("raceHistory")) || [];
+  history.push(raceData);
+
+  localStorage.setItem("raceHistory", JSON.stringify(history));
+
+  // 🚀 AUTO GO TO HISTORY PAGE
+  window.location.href = "results-history.html";
 }
 
 </script>
