@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Race History</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial;
+      background: #0b0b0f;
+      color: white;
+    }
+
+    header {
+      background: #d40000;
+      padding: 20px;
+      text-align: center;
+      font-size: 26px;
+      font-weight: bold;
+    }
+
+    .race {
+      background: #15151c;
+      margin: 15px;
+      padding: 15px;
+      border-radius: 10px;
+    }
+
+    .track {
+      color: #ffcc00;
+      font-weight: bold;
+    }
+
+    .driver {
+      padding: 5px 0;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>RACE HISTORY</header>
+
+<div id="history"></div>
+
+<script>
+
+function loadHistory() {
+  let history = JSON.parse(localStorage.getItem("raceHistory")) || [];
+
+  let container = document.getElementById("history");
+
+  if(history.length === 0){
+    container.innerHTML = "<p style='padding:20px'>No races saved yet</p>";
+    return;
+  }
+
+  container.innerHTML = history.map(race => {
+
+    return `
+      <div class="race">
+        <div class="track">🏁 ${race.track} - ${race.date}</div>
+        <br>
+        ${race.results.map(r =>
+          `<div class="driver">${r.driver} — ${r.points} pts</div>`
+        ).join("")}
+      </div>
+    `;
+  }).join("");
+}
+
+loadHistory();
+
+</script>
+
+</body>
+</html>
