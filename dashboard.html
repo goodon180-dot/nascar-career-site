@@ -1,190 +1,414 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Dashboard</title>
+import React, { useMemo, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #0b0b0f;
-      color: white;
-    }
+const logoSrc = "/mnt/data/XV Media Logo PNG(1).png";
 
-    nav {
-      background: #d40000;
-      display: flex;
-      justify-content: center;
-      gap: 40px;
-      padding: 15px;
-      font-weight: bold;
-    }
+const emailAddress = "ty.xvmedia@gmail.com";
+const phoneNumber = "780-718-3667";
+const phoneHref = "tel:7807183667";
+const purple = "#8b18ff";
 
-    nav a {
-      color: white;
-      text-decoration: none;
-    }
-
-    nav a:hover {
-      color: #ffcc00;
-    }
-
-    header {
-      text-align: center;
-      padding: 20px;
-      font-size: 26px;
-      font-weight: bold;
-      letter-spacing: 2px;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 20px;
-      padding: 20px;
-    }
-
-    .card {
-      background: #15151c;
-      padding: 20px;
-      border-radius: 10px;
-    }
-
-    .card h3 {
-      color: #ffcc00;
-      margin-bottom: 15px;
-    }
-
-    .list div {
-      padding: 6px 0;
-      border-bottom: 1px solid #2a2a35;
-    }
-
-    .list div:last-child {
-      border-bottom: none;
-    }
-
-    a.driver {
-      color: white;
-      text-decoration: none;
-      font-weight: bold;
-    }
-
-    a.driver:hover {
-      color: #ffcc00;
-    }
-
-    .cutline-divider {
-      border-top: 2px solid #ffcc00;
-      margin: 4px 0;
-      opacity: 0.8;
-    }
-
-    .plus { color: #00ff6a; }
-    .minus { color: #ff3b3b; }
-    .neutral { color: white; }
-
-  </style>
-</head>
-
-<body>
-
-<!-- NAVIGATION (UPDATED) -->
-<nav>
-  <a href="dashboard.html">Dashboard</a>
-  <a href="standings.html">Standings</a>
-  <a href="drivers.html">Drivers</a>
-  <a href="results.html">Results</a>
-  <a href="results-history.html">Results History</a> <!-- ✅ ADDED -->
-</nav>
-
-<header>DASHBOARD</header>
-
-<div class="grid">
-
-  <div class="card">
-    <h3>📊 Top 10</h3>
-    <div id="top10" class="list"></div>
-  </div>
-
-  <div class="card">
-    <h3>🟡 Playoff Cutline</h3>
-    <div id="cutline" class="list"></div>
-  </div>
-
-  <div class="card">
-    <h3>🔥 League Stats</h3>
-    <div id="stats"></div>
-  </div>
-
-  <div class="card">
-    <h3>🏁 Last Race - Indy Road Course</h3>
-    <div class="list">
-      <div>🥇 T. Reddick</div>
-      <div>🥈 M. Truex Jr.</div>
-      <div>🥉 SV. Gisbergen</div>
-    </div>
-  </div>
-
-</div>
-
-<script>
-
-let data = [
-  ["K. Larson",418,0,"+130",148,3],
-  ["K. Busch",402,2,"+114",120,6],
-  ["T. Reddick",398,2,"+110",139,5],
-  ["A. Bowman",398,1,"+110",89,2],
-  ["B. Keselowski",380,1,"+92",96,6],
-  ["B. Wallace",351,0,"+63",24,2],
-  ["A. Dillon",348,0,"+60",18,0],
-  ["A. Cindric",346,0,"+58",88,3],
-  ["W. Byron",325,1,"+37",42,3],
-  ["J. Logano",324,1,"+36",112,3],
-  ["C. Bell",323,0,"+35",67,3],
-  ["T. Gibbs",315,1,"+27",75,2],
-  ["D. Hamlin",310,2,"+22",44,3],
-  ["R. Blaney",310,0,"+22",61,2],
-  ["M. Truex Jr.",299,0,"+11",49,3],
-  ["R. Chastain",294,1,"+6",62,2]
+const plans = [
+  {
+    name: "Bronze Plan",
+    price: "$350/month",
+    tagline: "A simple starting point for consistent social presence.",
+    highlighted: false,
+    features: ["2 social platforms", "2–3 posts per week", "Basic engagement", "Social media strategy", "Monthly reporting"],
+  },
+  {
+    name: "Silver Plan",
+    price: "$500/month",
+    tagline: "Best value for businesses ready to grow consistently.",
+    highlighted: false,
+    features: ["3 social platforms", "4 posts per week", "Monthly reporting", "Social media strategy", "Active engagement"],
+  },
+  {
+    name: "Gold Plan",
+    price: "$650/month",
+    tagline: "More platforms, more posts, and stronger reach.",
+    highlighted: true,
+    features: ["4 social platforms", "5 posts per week", "Monthly reporting", "Social media strategy", "Active engagement"],
+  },
+  {
+    name: "Video Plan",
+    price: "$900/month",
+    tagline: "Built for businesses that want video-first growth.",
+    highlighted: false,
+    features: ["6 social platforms", "3 videos per week", "Monthly reporting", "Social media strategy", "Active engagement"],
+  },
 ];
 
-data.sort((a,b)=>b[1]-a[1]);
+const addOns = [
+  { title: "Graphics",
+    price: "$100-$150/month",
+    desc: "Based on Plan." },
+  { title: "Extra Social Platforms",
+    price: "$25/platform",
+    desc: "Reach more customers." },
+  { title: "Instagram/Facebook Ads", price: "Ad cost +", desc: "20% labour fee." },
+  { title: "Google Ads", price: "Ad cost +", desc: "25% labour fee." },
+  { title: "On-Site Content Creation",
+    price: "$200-$600/visit",
+    desc: "Based on Location and Time Spent." },
+  { title: "4 Video Posts",
+    price: "$200/month",
+    desc: "4 videos monthly." },
+  { title: "Social Media Setup",
+    price: "$50/platform",
+    desc: "Grow on more platforms." },
+  { title: "Social Media Promotion",
+    price: "$50/month",
+    desc: "Be featured on the XV Media social media pages." },
+];
 
-function driverLink(name){
-  return `<a class="driver" href="drivers.html?name=${encodeURIComponent(name)}">${name}</a>`;
+function createMailto(subject, body) {
+  return `mailto:${emailAddress}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
-document.getElementById("top10").innerHTML =
-  data.slice(0,10).map((d,i)=>
-    `<div>${i+1}. ${driverLink(d[0])} — ${d[1]} pts</div>`
-  ).join("");
+function Icon({ children, className = "h-5 w-5" }) {
+  return <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{children}</svg>;
+}
 
-document.getElementById("cutline").innerHTML =
-  data.slice(12,20).map((d,i)=>{
-    let cls = d[3].startsWith("+") ? "plus" : d[3].startsWith("-") ? "minus" : "neutral";
+function CheckIcon({ className }) {
+  return <Icon className={className}><path d="M20 6 9 17l-5-5" /></Icon>;
+}
 
-    let line = (d[0] === "R. Chastain")
-      ? `<div class="cutline-divider"></div>`
-      : "";
+function MailIcon({ className }) {
+  return <Icon className={className}><rect width="20" height="16" x="2" y="4" rx="2" /><path d="m22 7-10 6L2 7" /></Icon>;
+}
 
-    return `
-      <div>${driverLink(d[0])} <span class="${cls}">${d[3]}</span></div>
-      ${line}
-    `;
-  }).join("");
+function PhoneIcon({ className }) {
+  return <Icon className={className}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.89.69 2.78a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.3-1.26a2 2 0 0 1 2.11-.45c.89.33 1.82.56 2.78.69A2 2 0 0 1 22 16.92Z" /></Icon>;
+}
 
-let mostWins = [...data].sort((a,b)=>b[2]-a[2])[0];
-let mostLaps = [...data].sort((a,b)=>b[4]-a[4])[0];
-let mostTop5 = [...data].sort((a,b)=>b[5]-a[5])[0];
+function SocialIcon({ label }) {
+  const iconClass = "h-5 w-5";
 
-document.getElementById("stats").innerHTML = `
-  🏆 Most Wins: ${driverLink(mostWins[0])} (${mostWins[2]})<br><br>
-  🔥 Most Laps Led: ${driverLink(mostLaps[0])} (${mostLaps[4]})<br><br>
-  ⭐ Most Top 5s: ${driverLink(mostTop5[0])} (${mostTop5[5]})
-`;
+  if (label === "Instagram") {
+    return (
+      <svg viewBox="0 0 24 24" fill="currentColor" className={iconClass} aria-hidden="true">
+        <path d="M7.75 2h8.5A5.76 5.76 0 0 1 22 7.75v8.5A5.76 5.76 0 0 1 16.25 22h-8.5A5.76 5.76 0 0 1 2 16.25v-8.5A5.76 5.76 0 0 1 7.75 2Zm0 2A3.75 3.75 0 0 0 4 7.75v8.5A3.75 3.75 0 0 0 7.75 20h8.5A3.75 3.75 0 0 0 20 16.25v-8.5A3.75 3.75 0 0 0 16.25 4h-8.5ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Zm5.25-2.35a1.15 1.15 0 1 1-2.3 0 1.15 1.15 0 0 1 2.3 0Z" />
+      </svg>
+    );
+  }
 
-</script>
+  if (label === "Facebook") {
+    return (
+      <svg viewBox="0 0 24 24" fill="currentColor" className={iconClass} aria-hidden="true">
+        <path d="M14 8.5V6.75c0-.69.56-1.25 1.25-1.25H17V2.2c-.87-.12-1.77-.2-2.65-.2C11.7 2 10 3.62 10 6.55V8.5H7v3.65h3V22h4v-9.85h2.95l.55-3.65H14Z" />
+      </svg>
+    );
+  }
 
-</body>
-</html>
+  if (label === "LinkedIn") {
+    return (
+      <svg viewBox="0 0 24 24" fill="currentColor" className={iconClass} aria-hidden="true">
+        <path d="M5.34 7.46H2.2V22h3.14V7.46ZM3.77 2a1.82 1.82 0 1 0 0 3.64 1.82 1.82 0 0 0 0-3.64ZM22 22h-3.13v-7.1c0-1.69-.03-3.87-2.36-3.87-2.36 0-2.72 1.85-2.72 3.76V22h-3.13V7.46h3v1.99h.04c.42-.8 1.45-2.36 3.56-2.36 3.8 0 4.74 2.5 4.74 5.75V22Z" />
+      </svg>
+    );
+  }
+
+  if (label === "X") {
+    return (
+      <svg viewBox="0 0 24 24" fill="currentColor" className={iconClass} aria-hidden="true">
+        <path d="M18.9 2H22l-6.8 7.77L23.2 22h-6.26l-4.9-6.4L6.43 22H3.32l7.17-8.2L2.8 2h6.42l4.43 5.85L18.9 2Zm-1.1 17.85h1.72L8.28 4.04H6.43l11.36 15.81Z" />
+      </svg>
+    );
+  }
+
+  if (label === "TikTok") {
+    return (
+      <svg viewBox="0 0 24 24" fill="currentColor" className={iconClass} aria-hidden="true">
+        <path d="M16.6 2c.35 2.52 1.77 4.02 4.25 4.18v3.28a7.17 7.17 0 0 1-4.18-1.29v6.2c0 4.76-5.16 7.72-9.25 5.32-3.8-2.24-4.13-7.93-.6-10.58a6.05 6.05 0 0 1 4.2-1.08v3.47c-.39-.12-.8-.17-1.22-.12-2.28.28-3.33 3-1.82 4.72 1.45 1.66 4.17.72 4.17-1.56V2h4.45Z" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={iconClass} aria-hidden="true">
+      <path d="M23.5 6.2a3.02 3.02 0 0 0-2.13-2.14C19.5 3.56 12 3.56 12 3.56s-7.5 0-9.37.5A3.02 3.02 0 0 0 .5 6.2C0 8.08 0 12 0 12s0 3.92.5 5.8a3.02 3.02 0 0 0 2.13 2.14c1.87.5 9.37.5 9.37.5s7.5 0 9.37-.5a3.02 3.02 0 0 0 2.13-2.14c.5-1.88.5-5.8.5-5.8s0-3.92-.5-5.8ZM9.6 15.57V8.43L15.82 12 9.6 15.57Z" />
+    </svg>
+  );
+}
+
+function PlanModal({ plan, onClose }) {
+  const quoteHref = useMemo(() => {
+    if (!plan) return `mailto:${emailAddress}`;
+    return createMailto(`Quote Request - ${plan.name}`, `Hi XV Media,\n\nI am interested in the ${plan.name}. Please send me more information and a quote.\n\nThanks!`);
+  }, [plan]);
+
+  return (
+    <AnimatePresence>
+      {plan && (
+        <motion.div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4 backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}>
+          <motion.div className="w-full max-w-xl rounded-[2rem] border border-purple-500/40 bg-[#08030f] p-8 text-white shadow-[0_0_80px_rgba(139,24,255,0.45)]" initial={{ y: 30, opacity: 0, scale: 0.96 }} animate={{ y: 0, opacity: 1, scale: 1 }} exit={{ y: 30, opacity: 0, scale: 0.96 }} onClick={(event) => event.stopPropagation()}>
+            <div className="mb-6 flex items-start justify-between gap-6">
+              <div>
+                <p className="mb-2 text-sm font-semibold uppercase tracking-[0.25em] text-purple-300">Package Details</p>
+                <h3 className="text-3xl font-black">{plan.name}</h3>
+                <p className="mt-2 text-3xl font-black text-purple-400">{plan.price}</p>
+              </div>
+              <button type="button" className="rounded-full border border-purple-400/40 px-4 py-2 text-sm text-white hover:bg-purple-500/20" onClick={onClose}>Close</button>
+            </div>
+            <p className="mb-6 text-zinc-300">{plan.tagline}</p>
+            <div className="space-y-3">
+              {plan.features.map((feature) => (
+                <div key={feature} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-3">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-purple-600"><CheckIcon className="h-4 w-4" /></span>
+                  <span>{feature}</span>
+                </div>
+              ))}
+            </div>
+            <a href={`mailto:ty.xvmedia@gmail.com?subject=${encodeURIComponent(`Quote Request - ${plan.name}`)}&body=${encodeURIComponent(`Hi XV Media,
+
+I am interested in the ${plan.name}. Please send me more information and a quote.
+
+Thanks!`)}`} className="mt-8 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-purple-700 to-purple-500 px-6 py-4 font-bold text-white shadow-[0_0_30px_rgba(139,24,255,0.45)] hover:from-purple-600 hover:to-purple-400">
+              Get a Quote Today! <MailIcon className="h-5 w-5" />
+            </a>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+export default function XVMediaWebsiteMockup() {
+  const [selectedPlan, setSelectedPlan] = useState(null);
+  const generalQuoteHref = createMailto("Quote Request - XV Media", "Hi XV Media,\n\nI am interested in getting a quote for social media services. Please send me more information.\n\nThanks!");
+
+  console.assert(plans.find((plan) => plan.name === "Gold Plan")?.highlighted === true, "Gold Plan should be highlighted.");
+  console.assert(addOns.some((addOn) => addOn.title === "4 Video Posts"), "Video add-on should say 4 Video Posts.");
+  console.assert(addOns.length === 8, "There should be eight add-ons.");
+
+  return (
+    <div className="min-h-screen scroll-smooth bg-[#030007] text-white">
+      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(139,24,255,0.34),transparent_36%),radial-gradient(circle_at_20%_10%,rgba(255,255,255,0.08),transparent_24%)]" />
+      <header className="sticky top-0 z-40 border-b border-purple-500/20 bg-[#030007]/85 backdrop-blur-xl">
+        <div className="relative mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 py-4">
+          <a href="#top" className="flex items-center gap-3" aria-label="XV Media home">
+            <img src={logoSrc} alt="XV Media logo" className="h-16 w-16 rounded-2xl bg-white object-contain p-1" />
+            
+          </a>
+          <nav className="hidden items-center gap-8 text-sm font-semibold uppercase tracking-wide text-zinc-300 md:flex">
+            <a href="#plans" className="transition-colors duration-200 hover:text-purple-300">Plans</a>
+            <a href="#addons" className="transition-colors duration-200 hover:text-purple-300">Add-Ons</a>
+            <a href="#portfolio" className="transition-colors duration-200 hover:text-purple-300">Portfolio</a>
+            <a href="#contact" className="transition-colors duration-200 hover:text-purple-300">Contact</a>
+          </nav>
+          <a href={`mailto:ty.xvmedia@gmail.com?subject=${encodeURIComponent("XV Media Quote Request")}&body=${encodeURIComponent("Hi XV Media,%0D%0A%0D%0AI am interested in getting a quote for social media services.%0D%0A%0D%0AThanks!")}`} className="hidden rounded-xl bg-gradient-to-r from-purple-700 to-purple-500 px-5 py-3 font-bold text-white shadow-[0_0_24px_rgba(139,24,255,0.5)] hover:from-purple-600 hover:to-purple-400 sm:block">Get a Quote Today!</a>
+        </div>
+      </header>
+
+      <main id="top" className="relative">
+        <section className="mx-auto grid max-w-7xl items-center gap-12 px-6 py-20 lg:grid-cols-[0.95fr_1.05fr] lg:py-28">
+          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+            <p className="mb-4 text-sm font-bold uppercase tracking-[0.28em] text-purple-300">Professional Social Media Management</p>
+            <h1 className="text-5xl font-black leading-tight tracking-tight md:text-7xl">
+              We Elevate Brands. <span className="block bg-gradient-to-r from-purple-400 to-purple-600 bg-clip-text text-transparent">You Grow Faster.</span>
+            </h1>
+            <p className="mt-6 max-w-xl text-lg leading-8 text-zinc-300">XV Media helps businesses stay consistent, reach more people, and turn social media into a professional growth channel through strategy, content, engagement, reporting, and advertising support.</p>
+            <div className="mt-8 flex flex-col gap-4 sm:flex-row">
+              <a href={`mailto:ty.xvmedia@gmail.com?subject=${encodeURIComponent("XV Media Quote Request")}&body=${encodeURIComponent("Hi XV Media,%0D%0A%0D%0AI am interested in getting a quote for social media services.%0D%0A%0D%0AThanks!")}`} className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-purple-700 to-purple-500 px-8 py-4 font-bold text-white shadow-[0_0_30px_rgba(139,24,255,0.45)] hover:from-purple-600 hover:to-purple-400">Get a Quote Today! <MailIcon className="h-5 w-5" /></a>
+              <a href="#plans" className="rounded-2xl border border-purple-400/50 px-8 py-4 text-center font-bold text-white hover:bg-purple-500/15">View Plans</a>
+            </div>
+          </motion.div>
+
+          <motion.div className="relative flex justify-center lg:justify-end" initial={{ opacity: 0, scale: 0.94 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.7 }}>
+            <div className="absolute inset-10 rounded-full bg-purple-600/30 blur-3xl" />
+            <motion.div
+              className="relative h-[600px] w-[300px] rounded-[3rem] border border-white/15 bg-gradient-to-b from-zinc-900 via-[#130622] to-black p-3 shadow-[0_0_90px_rgba(139,24,255,0.55)]"
+              animate={{ y: [0, -12, 0], rotateY: [-6, 6, -6] }}
+              transition={{ repeat: Infinity, duration: 5, ease: "easeInOut" }}
+              style={{ transformStyle: "preserve-3d" }}
+            >
+              <div className="absolute -right-2 top-24 h-20 w-1 rounded-full bg-purple-400/60" />
+              <div className="absolute -right-2 top-52 h-14 w-1 rounded-full bg-purple-400/50" />
+              <div className="relative h-full overflow-hidden rounded-[2.5rem] border border-white/10 bg-[#07010d]">
+                <div className="absolute left-1/2 top-3 z-10 h-6 w-28 -translate-x-1/2 rounded-full bg-black" />
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(139,24,255,0.55),transparent_45%),linear-gradient(160deg,rgba(255,255,255,0.08),transparent_40%)]" />
+                <div className="relative flex h-full flex-col px-5 pb-6 pt-14">
+                  <div className="mb-4 flex items-center justify-between text-xs text-zinc-300">
+                    <span>9:41</span>
+                    <span className="flex items-center gap-1">
+                      <span className="h-2 w-4 rounded-sm border border-white/60" />
+                    </span>
+                  </div>
+
+                  <div className="rounded-[2rem] border border-white/10 bg-[#0f0718] shadow-[0_0_40px_rgba(139,24,255,0.25)]">
+                    <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+                      <p className="text-lg font-black tracking-tight">Instagram</p>
+                      <div className="flex gap-1.5">
+                        <span className="h-1.5 w-1.5 rounded-full bg-purple-400" />
+                        <span className="h-1.5 w-1.5 rounded-full bg-purple-400" />
+                        <span className="h-1.5 w-1.5 rounded-full bg-purple-400" />
+                      </div>
+                    </div>
+
+                    <div className="px-4 py-4">
+                      <div className="flex items-center gap-3">
+                        <img src={logoSrc} alt="XV Media logo" className="h-14 w-14 rounded-full bg-white object-contain p-1.5 shadow-[0_0_25px_rgba(139,24,255,0.45)]" />
+                        <div>
+                          <p className="font-black">xvmedia</p>
+                          <p className="text-xs text-zinc-400">Social Media Agency</p>
+                        </div>
+                      </div>
+
+                      <div className="mt-4 grid grid-cols-3 gap-3 text-center">
+                        <div>
+                          <p className="text-lg font-black">128</p>
+                          <p className="text-[10px] uppercase tracking-wide text-zinc-400">Posts</p>
+                        </div>
+                        <div>
+                          <p className="text-lg font-black">12.4K</p>
+                          <p className="text-[10px] uppercase tracking-wide text-zinc-400">Followers</p>
+                        </div>
+                        <div>
+                          <p className="text-lg font-black">342</p>
+                          <p className="text-[10px] uppercase tracking-wide text-zinc-400">Following</p>
+                        </div>
+                      </div>
+
+                      <p className="mt-4 text-sm leading-5 text-zinc-200">Helping brands grow with strategy, content, engagement, and results-driven social media.</p>
+
+                      <div className="mt-4 grid grid-cols-2 gap-2">
+                        <div className="rounded-xl bg-gradient-to-r from-purple-700 to-purple-500 px-3 py-2 text-center text-sm font-bold">Follow</div>
+                        <div className="rounded-xl border border-white/15 px-3 py-2 text-center text-sm font-bold">Message</div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-1 border-t border-white/10 p-2">
+                      {["Strategy", "Content", "Growth", "Ads", "Reports", "Reels"].map((item, index) => (
+                        <motion.div
+                          key={item}
+                          className="aspect-square rounded-xl bg-gradient-to-br from-purple-500/80 via-purple-800/70 to-black p-2 shadow-[0_0_18px_rgba(139,24,255,0.25)]"
+                          animate={{ opacity: [0.75, 1, 0.75], y: [0, index % 2 === 0 ? -3 : 3, 0] }}
+                          transition={{ repeat: Infinity, duration: 3 + index * 0.2, ease: "easeInOut" }}
+                        >
+                          <div className="flex h-full items-end rounded-lg border border-white/10 bg-black/20 p-1 text-[9px] font-bold uppercase leading-tight text-white/90">
+                            {item}
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <motion.div
+                    className="mt-6 rounded-2xl border border-purple-400/30 bg-white/[0.06] px-4 py-3 text-center shadow-[0_0_25px_rgba(139,24,255,0.25)]"
+                    animate={{ opacity: [0.65, 1, 0.65], scale: [0.98, 1, 0.98] }}
+                    transition={{ repeat: Infinity, duration: 2.6, ease: "easeInOut" }}
+                  >
+                    <p className="text-xs uppercase tracking-[0.22em] text-purple-300">New Lead</p>
+                    <p className="mt-1 text-sm font-bold text-white">Interested in the Silver Plan</p>
+                  </motion.div>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        </section>
+
+        <section id="plans" className="mx-auto max-w-7xl px-6 py-16">
+          <div className="mb-10 text-center">
+            <h2 className="text-4xl font-black md:text-5xl">Our Plans</h2>
+            <p className="mt-3 text-zinc-400">Simple, transparent pricing to fit your goals.</p>
+          </div>
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+            {plans.map((plan) => (
+              <motion.div key={plan.name} whileHover={{ y: -10, scale: 1.03 }} transition={{ type: "spring", stiffness: 260, damping: 18 }} className={`rounded-3xl border bg-white/[0.055] p-6 backdrop-blur-sm ${plan.highlighted ? "border-purple-400 shadow-[0_0_45px_rgba(139,24,255,0.35)]" : "border-white/10"}`}>
+                {plan.highlighted && <p className="mb-4 w-fit rounded-full bg-purple-600 px-3 py-1 text-xs font-bold uppercase tracking-wide">Most Popular</p>}
+                <h3 className="text-2xl font-black">{plan.name}</h3>
+                <p className="mt-3 text-sm text-zinc-400">{plan.tagline}</p>
+                <p className="mt-6 text-4xl font-black text-purple-400">{plan.price}</p>
+                <div className="mt-6 space-y-3">
+                  {plan.features.map((feature) => (
+                    <p key={feature} className="flex items-center gap-2 text-sm text-zinc-200"><span className="flex h-5 w-5 items-center justify-center rounded-full bg-purple-600"><CheckIcon className="h-3.5 w-3.5" /></span>{feature}</p>
+                  ))}
+                </div>
+                <button type="button" onClick={() => setSelectedPlan(plan)} className="mt-8 w-full rounded-xl border border-purple-400 px-5 py-3 font-bold text-white hover:bg-purple-500/20">View Details</button>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+
+        <section id="addons" className="mx-auto max-w-7xl px-6 py-16">
+          <div className="mb-10 text-center">
+            <h2 className="text-4xl font-black md:text-5xl">Add-Ons</h2>
+            <p className="mt-3 text-zinc-400">Enhance your plan with additional services.</p>
+          </div>
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {addOns.map((addOn) => (
+              <motion.div key={addOn.title} whileHover={{ y: -6 }} className="rounded-3xl border border-white/10 bg-white/[0.055] p-6 text-center backdrop-blur-sm hover:border-purple-400/60">
+                <h3 className="text-lg font-bold">{addOn.title}</h3>
+                <p className="mt-4 text-2xl font-black text-white">{addOn.price}</p>
+                <p className="mt-2 text-sm text-zinc-400">{addOn.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+
+        <section id="portfolio" className="mx-auto max-w-7xl px-6 py-16">
+          <div className="mb-10 text-center">
+            <h2 className="text-4xl font-black md:text-5xl">Portfolio</h2>
+            <p className="mt-3 text-zinc-400">A showcase of client content, campaigns, and social media growth.</p>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {[1, 2, 3, 4, 5, 6].map((item) => (
+              <motion.div
+                key={item}
+                whileHover={{ y: -8, scale: 1.02 }}
+                transition={{ type: "spring", stiffness: 260, damping: 18 }}
+                className="group overflow-hidden rounded-3xl border border-white/10 bg-white/[0.055] backdrop-blur-sm hover:border-purple-400/60"
+              >
+                <div className="relative aspect-[4/5] overflow-hidden bg-gradient-to-br from-purple-700/35 via-purple-500/10 to-black">
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="rounded-2xl border border-purple-400/40 bg-black/35 px-5 py-3 text-sm font-bold uppercase tracking-[0.22em] text-purple-200">
+                      Client Image
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          <div className="mt-14 rounded-[2rem] border border-white/10 bg-white/[0.045] p-8 backdrop-blur-sm md:p-12">
+            <p className="text-sm font-bold uppercase tracking-[0.28em] text-purple-300">About XV Media</p>
+            <h3 className="mt-4 text-3xl font-black md:text-4xl">Built to help businesses grow online.</h3>
+            <p className="mt-6 max-w-4xl text-lg leading-8 text-zinc-300">
+              At XV Media, our goal is simple — helping businesses maximize their online presence and connect with the right audience through strategic, results-driven social media marketing.
+
+We’ve worked with businesses across a wide range of industries, including gaming, construction, machinery, roofing, massage therapy, technology, environmental services, and camping. This diverse experience allows us to create content and strategies tailored to each client’s unique audience and goals.
+
+Our background in social media growth includes building successful YouTube platforms with over 165,000 subscribers and more than 47 million views. Through this experience, we’ve developed a strong understanding of what performs well online, how to capture audience attention, and how to build effective content strategies that drive engagement and growth.
+
+At XV Media, we focus on more than just posting content — we create customized strategies designed to help your business grow, strengthen your brand, and reach more customers online.
+            </p>
+          </div>
+        </section>
+
+        <section id="contact" className="mx-auto max-w-7xl px-6 py-16">
+          <div className="grid gap-8 rounded-[2rem] border border-purple-400/30 bg-white/[0.055] p-8 backdrop-blur-md lg:grid-cols-[0.8fr_1fr_1fr] lg:items-center">
+            <div className="flex items-center gap-4">
+              <img src={logoSrc} alt="XV Media logo" className="h-24 w-24 rounded-2xl bg-white object-contain p-2" />
+              <p className="max-w-xs text-zinc-300">Let’s build your brand and grow your presence across every platform.</p>
+            </div>
+            <div className="space-y-4 text-zinc-200">
+              <a href={`mailto:${emailAddress}`} className="flex items-center gap-3 hover:text-purple-300"><MailIcon className="h-5 w-5 text-purple-400" />{emailAddress}</a>
+              <a href={phoneHref} className="flex items-center gap-3 hover:text-purple-300"><PhoneIcon className="h-5 w-5 text-purple-400" />{phoneNumber}</a>
+            </div>
+            <div>
+              <a href={`mailto:ty.xvmedia@gmail.com?subject=${encodeURIComponent("XV Media Quote Request")}&body=${encodeURIComponent("Hi XV Media,%0D%0A%0D%0AI am interested in getting a quote for social media services.%0D%0A%0D%0AThanks!")}`} className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-purple-700 to-purple-500 px-8 py-4 font-bold text-white shadow-[0_0_30px_rgba(139,24,255,0.45)] hover:from-purple-600 hover:to-purple-400">Get a Quote Today! <MailIcon className="h-5 w-5" /></a>
+              <div className="mt-6 flex justify-center gap-4">
+                {["Instagram", "Facebook", "LinkedIn", "X", "TikTok", "YouTube"].map((label) => <a key={label} href="#" aria-label={label} className="flex h-11 w-11 items-center justify-center rounded-full border border-white/20 hover:border-purple-400 hover:bg-purple-500/20"><SocialIcon label={label} /></a>)}
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer className="relative border-t border-purple-500/20 px-6 py-8 text-center text-sm text-zinc-500">© 2026 XV Media. All rights reserved.</footer>
+      <PlanModal plan={selectedPlan} onClose={() => setSelectedPlan(null)} />
+    </div>
+  );
+}
